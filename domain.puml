@@ -1,0 +1,137 @@
+@startuml
+class domain.ExecutionMode {
++ int getPriority()
++ void setPriority(int)
++ Resource getResource()
++ void setResource(Resource)
+}
+
+class base_domain.Task {
++ String getMaterialDescription()
++ void setMaterialDescription(String)
++ String getMaterialId()
++ void setMaterialId(String)
++ int getUnclearedQuantity()
++ void setUnclearedQuantity(int)
++ TaskType getTaskType()
++ void setTaskType(TaskType)
++ List<Operation> getCraftPath()
++ void setCraftPath(List<Operation>)
++ LocalDateTime getDueDate()
++ void setDueDate(LocalDateTime)
+}
+
+class utils.ExcelDataLoader {
++ List<Resource> loadResources()
++ List<Task> loadTasks()
+}
+
+class base_domain.TimeSlot {
++ LocalDateTime getStart()
++ void setStart(LocalDateTime)
++ LocalDateTime getEnd()
++ void setEnd(LocalDateTime)
+}
+
+class solver.TimeConstrainsProvider {
++ Constraint[] defineConstraints(ConstraintFactory)
++ Constraint minimizeLateCompletion(ConstraintFactory)
+}
+
+class domain.Solution {
++ List<Task> getTaskList()
++ void setTaskList(List<Task>)
++ List<SequenceNode> getSequenceNodeList()
++ void setSequenceNodeList(List<SequenceNode>)
++ SimpleScore getScore()
++ void setScore(SimpleScore)
+}
+
+enum base_domain.TaskType {
++  PARENT
++  CHILD
+}
+
+interface domain.Node {
+}
+class domain.SequenceNode {
++ SequenceNode getPreviousNode()
++ void setPreviousNode(SequenceNode)
++ Task getTask()
++ void setTask(Task)
++ List<OperationAllocation> getOperationAllocations()
++ void setOperationAllocations(List<OperationAllocation>)
++ LocalDateTime getNodeEndDate()
+}
+
+abstract class base_domain.Labeled {
++ String getId()
++ void setId(String)
+}
+
+class domain.Head {
+}
+class App.Main {
++ {static} void main(String[])
+}
+
+class utils.RandomStringGenerator {
++ {static} String generateRandomString(int)
+}
+
+class base_domain.Operation {
++ String getName()
++ void setName(String)
++ int getOrder()
++ void setOrder(int)
++ float getMinutesPerBeat()
++ void setMinutesPerBeat(float)
++ float getQuantityPerBeat()
++ void setQuantityPerBeat(float)
++ List<Resource> getAvailableResources()
++ void setAvailableResources(List<Resource>)
++ Task getParentTask()
++ void setParentTask(Task)
++ Operation getPerviousOperation()
++ void setPreviousOperation(Operation)
+}
+
+class base_domain.Resource {
++ LocalDateTime getLocalDateTime()
++ void setLocalDateTime(LocalDateTime)
++ String getName()
++ void setName(String)
++ List<TimeSlot> getTimeSlots()
++ void setTimeSlots(List<TimeSlot>)
++ void generateTimeSlots()
++ LocalDateTime getValidStartTime(LocalDateTime)
++ LocalDateTime getValidEndTime(LocalDateTime,Duration)
+}
+
+class domain.OperationAllocation {
++ Operation getOperation()
++ void setOperation(Operation)
++ ExecutionMode getAssignedExecutionMode()
++ void setAssignedExecutionMode(ExecutionMode)
++ List<ExecutionMode> getExecutionModes()
++ void setExecutionModes(List<ExecutionMode>)
++ SequenceNode getNode()
++ void setNode(SequenceNode)
++ OperationAllocation getPreviousOperationAllocation()
++ void setPreviousOperationAllocation(OperationAllocation)
++ LocalDateTime getStartDate()
++ LocalDateTime getEndDate()
+}
+
+
+
+base_domain.Labeled <|-- domain.ExecutionMode
+base_domain.Labeled <|-- base_domain.Task
+ai.timefold.solver.core.api.score.stream.ConstraintProvider <|.. solver.TimeConstrainsProvider
+domain.Node <|.. domain.SequenceNode
+base_domain.Labeled <|-- domain.SequenceNode
+domain.Node <|.. domain.Head
+base_domain.Labeled <|-- base_domain.Operation
+base_domain.Labeled <|-- base_domain.Resource
+base_domain.Labeled <|-- domain.OperationAllocation
+@enduml
