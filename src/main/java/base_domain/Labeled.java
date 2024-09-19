@@ -14,4 +14,9 @@ public abstract class Labeled {
     public void setId(String id) {
         this.id = id;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

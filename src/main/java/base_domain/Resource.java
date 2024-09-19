@@ -10,6 +10,7 @@ import java.util.List;
 public class Resource extends Labeled {
     private String name;
     private List<TimeSlot> timeSlots;
+    private LocalDateTime localDateTime = null;
 
     public LocalDateTime getLocalDateTime() {
         return localDateTime;
@@ -18,8 +19,6 @@ public class Resource extends Labeled {
     public void setLocalDateTime(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;
     }
-
-    private LocalDateTime localDateTime = null;
 
     public Resource(String id, String name, List<TimeSlot> timeSlots) {
         super(id);
@@ -55,9 +54,9 @@ public class Resource extends Labeled {
         List<TimeSlot> timeSlots = new ArrayList<>();
 
         LocalDate startDate = LocalDate.of(2024, 9, 1);
-        LocalDate endDate = LocalDate.of(2024, 12, 31);
+        LocalDate endDate = LocalDate.of(2100, 12, 31);
         LocalTime startTime = LocalTime.of(8, 0);
-        LocalTime endTime = LocalTime.of(17, 0);
+        LocalTime endTime = LocalTime.of(23, 0);
 
         // 从9月1日到12月31日的每一天
         for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {

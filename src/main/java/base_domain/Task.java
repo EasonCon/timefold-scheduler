@@ -1,5 +1,7 @@
 package base_domain;
 
+import FJSP.OperationAllocation;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,4 +74,5 @@ public class Task extends Labeled{
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
+
 }

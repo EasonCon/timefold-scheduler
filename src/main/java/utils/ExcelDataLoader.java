@@ -52,7 +52,7 @@ public class ExcelDataLoader {
             task.setDueDate(taskSheet.getRow(i).getCell(9).getLocalDateTimeCellValue());
             task.setMaterialId(taskSheet.getRow(i).getCell(3).getStringCellValue());
             task.setMaterialDescription(taskSheet.getRow(i).getCell(4).getStringCellValue());
-            task.setUnclearedQuantity((int) taskSheet.getRow(i).getCell(8).getNumericCellValue());
+            task.setUnclearedQuantity((int) taskSheet.getRow(i).getCell(5).getNumericCellValue());
 
             String materialCode = task.getMaterialId();
 
