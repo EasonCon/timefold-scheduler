@@ -1,89 +1,96 @@
 package App;
 
-import FJSP.*;
-import ai.timefold.solver.core.api.solver.Solver;
-import ai.timefold.solver.core.api.solver.SolverFactory;
-import ai.timefold.solver.core.config.solver.SolverConfig;
-import base_domain.ExecutionMode;
-import base_domain.Operation;
-import base_domain.Resource;
-import base_domain.Task;
-import score.MinimizeTimeConstraints;
-import utils.ExcelDataLoader;
-import utils.RandomStringGenerator;
+import DataStruct.Operation;
+import DataStruct.OperationStartRelationShip;
+import DataStruct.Resource.RenewableResource;
+import DataStruct.Resource.ResourceRequirement;
+import DataStruct.Task;
+import DataStruct.ExecutionMode;
+import Utils.RandomStringGenerator;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Main {
     private static final String filePath = "data.xlsx";
 
-    public static void main(String[] args) throws IOException {
-        ExcelDataLoader loader = new ExcelDataLoader(filePath);
-        List<Task> tasks = loader.loadTasks();
-        List<Resource> resources = loader.loadResources();
+    public static void main(String[] args) {
+        int taskCount = 2;
+        int resourceCount = 5;
+        List<Task> taskList = new ArrayList<>();
+        List<RenewableResource> resourceList = new ArrayList<>();
 
-        SourceAllocation sourceAllocation = new SourceAllocation(RandomStringGenerator.generateRandomString(16));
-        SinkAllocation sinkAllocation = new SinkAllocation(RandomStringGenerator.generateRandomString(16));
+        // 构造资源
+        for (int i = 0; i < resourceCount; i++) {
+            RenewableResource resource = new RenewableResource();
+            resource.setId(RandomStringGenerator.generateRandomString(16));
+            resource.setName("资源" + i);
+            resource.setCapacity(1);
+            resourceList.add(resource);
+        }
 
-        List<OperationAllocation> allOperationAllocations = new ArrayList<>();
-        HashMap<Task, List<OperationAllocation>> taskOperationAllocation = new LinkedHashMap<>();
 
-        for (Task task : tasks) {
-            List<OperationAllocation> thisTaskOperationAllocation = new ArrayList<>();
-            for (Operation operation : task.getCraftPath()) {
-                List<ExecutionMode> executionModes = new ArrayList<>();  // 当前工序的执行模式
-                List<Resource> availableResources = operation.getAvailableResources();
-                for (int i = 0; i < availableResources.size(); i++) {
-                    Resource resource = availableResources.get(i);
-                    ExecutionMode executionMode = new ExecutionMode(RandomStringGenerator.generateRandomString(16), operation, resource, i);
-                    executionModes.add(executionMode);
+        for (int i = 0; i < taskCount; i++) {
+            Task task = new Task();
+            task.setId("任务" + i);
+            task.setMaterialId("材料" + i);
+            task.setQuantity(5);
+
+            // 构造这个任务的工序
+            List<Operation> operationList = new ArrayList<>();
+            for (int j = 0; j < 3; j++) {
+                Operation operation = new Operation();
+                operation.setId(RandomStringGenerator.generateRandomString(16));
+                operation.setName("工序" + j);
+                operation.setOrder(j);
+                operation.setParentTask(task);
+                operation.setOperationStartRelationShip(OperationStartRelationShip.ES);
+                operation.setFirst(false);
+                operation.setLast(false);
+
+                // 构造这个工序的执行方式
+                List<ExecutionMode> executionModes = new ArrayList<>();
+
+                // mode 1
+                ExecutionMode mode1 = new ExecutionMode();
+                mode1.setId(RandomStringGenerator.generateRandomString(16));
+                mode1.setOperation(operation);
+                mode1.setResourceRequirement(new ResourceRequirement(RandomStringGenerator.generateRandomString(16), null, resourceList.getFirst(), null));
+                mode1.setPriority(1);
+                mode1.setBeat(5);
+                mode1.setQuantityPerBeat(1);
+                executionModes.add(mode1);
+
+                // mode 2
+                ExecutionMode mode2 = new ExecutionMode();
+                mode2.setId(RandomStringGenerator.generateRandomString(16));
+                mode2.setOperation(operation);
+                mode2.setResourceRequirement(new ResourceRequirement(RandomStringGenerator.generateRandomString(16), null, resourceList.get(1), null));
+                mode2.setPriority(2);
+                mode2.setBeat(10);
+                mode2.setQuantityPerBeat(1);
+                executionModes.add(mode2);
+
+                operation.setExecutionModes(executionModes);
+                if (j == 0) {
+                    operation.setFirst(true);
                 }
-                // 构建分配关系
-                OperationAllocation operationAllocation = new OperationAllocation(RandomStringGenerator.generateRandomString(16));
-                operationAllocation.setOperation(operation);
-                operationAllocation.setExecutionModes(executionModes);
-                operationAllocation.setAssignedExecutionMode(executionModes.getFirst());  // 默认选择第一个执行模式
-                thisTaskOperationAllocation.add(operationAllocation);
+                if (j == 2) {
+                    operation.setLast(true);
+                }
+
+                operationList.add(operation);
             }
-            taskOperationAllocation.put(task, thisTaskOperationAllocation);
-            allOperationAllocations.addAll(thisTaskOperationAllocation);
+
+            // 构建工序关联
+            for (int j = 0; j < operationList.size() - 1; j++) {
+                operationList.get(j).getNextOperations().add(operationList.get(j + 1));
+                operationList.get(j + 1).getPreviousOperations().add(operationList.get(j));
+
+                task.setCraftPath(operationList);
+            }
+            taskList.add(task);
         }
-
-        allOperationAllocations.getFirst().setPreviousOperationAllocation(sourceAllocation);
-        allOperationAllocations.getFirst().setNextOperationAllocation(allOperationAllocations.get(1));
-        allOperationAllocations.getLast().setNextOperationAllocation(sinkAllocation);
-        allOperationAllocations.getLast().setPreviousOperationAllocation(allOperationAllocations.get(allOperationAllocations.size() - 2));
-
-        for (int i = 1; i < allOperationAllocations.size() - 1; i++) {
-            allOperationAllocations.get(i).setPreviousOperationAllocation(allOperationAllocations.get(i - 1));
-            allOperationAllocations.get(i).setNextOperationAllocation(allOperationAllocations.get(i + 1));
-        }
-
-        Solution solution = new Solution();
-        solution.setId(RandomStringGenerator.generateRandomString(16));
-        solution.setTaskList(tasks);
-        solution.setResourceList(resources);
-        solution.setOperationAllocationList(allOperationAllocations);
-        solution.setOperationAllocationMap(taskOperationAllocation);
-        solution.setSourceAllocation(sourceAllocation);
-        solution.setSinkAllocation(sinkAllocation);
-
-        // debug
-        solution.calculateTimes();
-
-        SolverFactory<Solution> solverFactory = SolverFactory.create(
-                new SolverConfig()
-                        .withSolutionClass(Solution.class)
-                        .withEntityClasses(OperationAllocation.class)
-                        .withConstraintProviderClass(MinimizeTimeConstraints.class)
-                        .withTerminationSpentLimit(Duration.ofSeconds(10)));
-
-        Solver<Solution> solver = solverFactory.buildSolver();
-        Solution solve = solver.solve(solution);
+        System.out.println();
     }
 }

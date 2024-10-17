@@ -1,4 +1,4 @@
-package base_domain;
+package DataStruct;
 
 public enum TaskType {
     PARENT,
