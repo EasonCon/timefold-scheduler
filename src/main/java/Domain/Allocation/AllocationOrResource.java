@@ -6,8 +6,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public abstract class AllocationOrResource extends Labeled {
+public abstract class AllocationOrResource {
+
     public AllocationOrResource() {
-        super(null);
     }
+
 }

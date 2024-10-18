@@ -1,0 +1,21 @@
+@startuml
+class Domain.Allocation.ResourceNode {
+}
+abstract class Domain.Allocation.AllocationOrResource {
+}
+class Domain.Allocation.Allocation {
++ List<ExecutionMode> getExecutionModes()
++ CountableValueRange<Integer> getDelayRange()
++ List<AllocationOrResource> getPossiblePreviousList()
+}
+
+class Domain.Scheduler {
++ boolean dataCheck()
+}
+
+
+
+Domain.Allocation.AllocationOrResource <|-- Domain.Allocation.ResourceNode
+Domain.Allocation.AllocationOrResource <|-- Domain.Allocation.Allocation
+DataStruct.Labeled <|-- Domain.Scheduler
+@enduml
