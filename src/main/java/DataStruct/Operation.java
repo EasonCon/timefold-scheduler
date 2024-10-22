@@ -14,6 +14,7 @@ public class Operation extends Labeled {
     private String name;
     private int order;
     private Task parentTask;
+    private long quantity;
     private List<ExecutionMode> executionModes = new ArrayList<>();
     private List<Operation> previousOperations = new ArrayList<>();
     private List<Operation> nextOperations = new ArrayList<>();

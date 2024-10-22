@@ -18,4 +18,10 @@ public class ExecutionMode extends Labeled {
     public ExecutionMode() {
         super(null);
     }
+
+    public long getDuration() {
+        long duration = 0L;
+        duration = (long) (this.getOperation().getQuantity() * this.getBeat() / this.getQuantityPerBeat());
+        return duration;
+    }
 }

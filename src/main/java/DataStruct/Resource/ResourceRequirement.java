@@ -22,8 +22,10 @@ public class ResourceRequirement extends Labeled {
         this.renewableResource = renewableResource;
         this.unlimitedResource = unlimitedResource;
 
-        if (amountLimitedResource == null && renewableResource == null && unlimitedResource == null) {
-            throw new IllegalArgumentException("ResourceRequirement must have at least one of amountLimitedResource, renewableResource, or unlimitedResource");
+        if (renewableResource == null) {
+            throw new IllegalArgumentException("ReNewResource cannot be null");
         }
+
+
     }
 }

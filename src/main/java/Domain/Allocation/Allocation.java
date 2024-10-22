@@ -2,6 +2,7 @@ package Domain.Allocation;
 
 import DataStruct.ExecutionMode;
 import DataStruct.Operation;
+import DataStruct.Resource.RenewableResource;
 import Listen.PossiblePreviousListListener;
 import Listen.StartTimeListener;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -23,6 +25,7 @@ public class Allocation extends AllocationOrResource {
     private Operation operation;
     private List<Allocation> predecessorsAllocations;  // In craft path
     private List<Allocation> successorsAllocations;
+    private List<RenewableResource> resources; // All resources
 
     // variables
     @PlanningVariable(valueRangeProviderRefs = {"executionModes"})

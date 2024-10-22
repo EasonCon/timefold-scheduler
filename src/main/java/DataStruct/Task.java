@@ -13,7 +13,7 @@ import java.util.List;
 public class Task extends Labeled {
     private String materialId;
     private String materialDescription;
-    private float Quantity;
+    private float quantity;
     private List<Operation> craftPath = new ArrayList<>();
     private List<MasterDemand> masterDemands = new ArrayList<>();
     private SupplyType supplyType;
