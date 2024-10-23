@@ -23,21 +23,22 @@ public class Allocation extends AllocationOrResource {
     @PlanningId
     private String id;
     private Operation operation;
-    private List<Allocation> predecessorsAllocations;  // In craft path
-    private List<Allocation> successorsAllocations;
-    private List<ResourceNode> allResources;
+    private List<Allocation> predecessorsAllocations = new ArrayList<>();  // In craft path
+    private List<Allocation> successorsAllocations = new ArrayList<>();
+    private List<ResourceNode> allResources = new ArrayList<>();
+    private List<Allocation> possiblePreviousAllocation = new ArrayList<>();
 
     // variables
     @PlanningVariable(valueRangeProviderRefs = {"executionModes"})
     private ExecutionMode executionMode;
 
-    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"resourceNodesRange", "previousRange"})
+    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"previousRange"})
     private AllocationOrResource previous;
 
     @PlanningVariable(valueRangeProviderRefs = {"delayRange"})
-    private int delay;  // minutes
+    private Integer delay;  // minutes
 
-    // shadow TODO: update previous range
+    // shadow
     @ShadowVariable(variableListenerClass = BaseReNewResourceListener.class, sourceVariableName = "executionMode")
     private ResourceNode baseResource;
 
@@ -47,8 +48,8 @@ public class Allocation extends AllocationOrResource {
     @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
     @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "executionMode")
     @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "delay")
-    private long startTime;
-    private long endTime;
+    private Long startTime;
+    private Long endTime;
 
 
     // value range
@@ -63,15 +64,19 @@ public class Allocation extends AllocationOrResource {
     }
 
     @ValueRangeProvider(id = "previousRange")
-    public List<Allocation> getAllocationRange() {
-        List<Allocation> allocations = new ArrayList<>();
-        for (ResourceNode resource : this.allResources) {
-            Allocation cursor = resource.getNext();
-            while (cursor.getNext() != null) {
-                allocations.add(cursor);
-                cursor = cursor.getNext();
+    public List<AllocationOrResource> getPossiblePreviousAllocation() {
+        List<AllocationOrResource> allocations = new ArrayList<>();
+        allocations.add(this.getResourceNode());
+        if (this.getResourceNode().getNext() != null) {
+            Allocation cursor = this.getResourceNode().getNext();
+            while (cursor != null) {
+                if (cursor != this) {
+                    allocations.add(cursor);
+                }
+                cursor = cursor.getResourceNode().getNext();
             }
         }
+
         return allocations;
     }
 

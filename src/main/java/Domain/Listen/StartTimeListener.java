@@ -1,6 +1,7 @@
 package Domain.Listen;
 
 import Domain.Allocation.Allocation;
+import Domain.Allocation.ResourceNode;
 import Domain.Scheduler;
 import ai.timefold.solver.core.api.domain.variable.VariableListener;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
@@ -40,6 +41,21 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
     @Override
     public void afterEntityRemoved(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
+
+    }
+
+    public void updateStartTime(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
+        if (allocation.getPrevious() instanceof ResourceNode && allocation.getPredecessorsAllocations() == null) {
+            scoreDirector.beforeVariableChanged(allocation, "startTime");
+            allocation.setStartTime(allocation.getBaseResource().getTimeSlots().getFirst().getStart());
+            scoreDirector.afterVariableChanged(allocation, "startTime");
+        } else {
+            Allocation previousAllocation = (Allocation) allocation.getPrevious();
+        }
+
+
+        // Alternating transmission of influence
+        // 思路：从当前allocation开始向后构建DAG，利用环检测方法更新start time
 
     }
 }

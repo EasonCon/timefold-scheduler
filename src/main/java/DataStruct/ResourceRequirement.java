@@ -14,4 +14,9 @@ public class ResourceRequirement extends Labeled {
     public ResourceRequirement() {
         super(null);
     }
+
+    public ResourceRequirement(String id, ResourceNode resourceNode) {
+        super(id);
+        this.resourceNode = resourceNode;
+    }
 }

@@ -20,6 +20,7 @@ public class ExecutionMode extends Labeled {
 
     public long getDuration() {
         long duration = 0L;
+        duration = (long) (this.beat * this.operation.getQuantity() / this.quantityPerBeat);
         return duration;
     }
 }

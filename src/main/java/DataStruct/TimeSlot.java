@@ -13,7 +13,13 @@ public class TimeSlot {
     public TimeSlot() {
     }
 
-    public  long getWorkingSeconds() {
+    public TimeSlot(String shiftID, long start, long end) {
+        this.shiftID = shiftID;
+        this.start = start;
+        this.end = end;
+    }
+
+    public long getWorkingSeconds() {
         return end - start;
     }
 }

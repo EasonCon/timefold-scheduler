@@ -1,6 +1,6 @@
 package DataStruct;
 
-import DataStruct.Resource.RenewableResource;
+import Domain.Allocation.ResourceNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,12 +22,14 @@ public class Operation extends Labeled {
     private long resourceOccupiedPostTime;
     private long NonResourceOccupiedPostTime;
     private OperationStartRelationShip operationStartRelationShip;
+    private boolean isCriticalPath;
+    private long batchSize;
 
     // keep stable scheduling result
     private boolean isLocked;
     private int plannedStartTime;
     private int plannedEndTime;
-    private RenewableResource plannedResource;
+    private ResourceNode plannedResource;
 
     // for judging position of operation
     private boolean isFirst;
