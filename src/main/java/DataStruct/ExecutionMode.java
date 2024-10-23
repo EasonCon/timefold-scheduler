@@ -1,7 +1,6 @@
 package DataStruct;
 
 
-import DataStruct.Resource.ResourceRequirement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +20,6 @@ public class ExecutionMode extends Labeled {
 
     public long getDuration() {
         long duration = 0L;
-        duration = (long) (this.getOperation().getQuantity() * this.getBeat() / this.getQuantityPerBeat());
         return duration;
     }
 }

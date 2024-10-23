@@ -1,4 +1,4 @@
-package Listen;
+package Domain.Listen;
 
 import Domain.Allocation.Allocation;
 import Domain.Scheduler;

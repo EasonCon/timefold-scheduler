@@ -58,12 +58,7 @@ public class Node {
      */
 
     public Long getEndTime() {
-        if (this.getStartTime() == null) {
-            return null;
-        } else {
-            return this.getExecutionMode().getResourceRequirement().getRenewableResource().getEndTime(this.getStartTime(), this.getExecutionMode().getDuration());
-        }
+
+        return 0L;
     }
-
-
 }

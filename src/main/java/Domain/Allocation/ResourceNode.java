@@ -1,23 +1,20 @@
 package Domain.Allocation;
 
-import DataStruct.Resource.RenewableResource;
+import DataStruct.TimeSlot;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
+import java.util.List;
+
 @Setter
+@Getter
 public class ResourceNode extends AllocationOrResource {
+
     private String id;
-    private RenewableResource resource;
-    private AllocationOrResource next;
+    private String name;
+    private List<TimeSlot> timeSlots;
 
     public ResourceNode() {
 
-    }
-
-    public ResourceNode(String id, RenewableResource resource, AllocationOrResource next) {
-        this.id = id;
-        this.resource = resource;
-        this.next = next;
     }
 }
