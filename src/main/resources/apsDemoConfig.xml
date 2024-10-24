@@ -26,6 +26,6 @@
 
     <!-- Termination configuration: time spent limit -->
     <termination>
-        <spentLimit>PT0M1S</spentLimit>
+        <spentLimit>PT0M5S</spentLimit>
     </termination>
 </solver>

@@ -17,7 +17,7 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
     @Override
     public boolean accept(ScoreDirector<Scheduler> scoreDirector, Move move) {
         // TODO:O(n^2) --> O(V·E)
-        logger.info("DAGLoopDetectionFilter accept:{}",move.toString());
+        logger.debug("DAGLoopDetectionFilter accept:{}",move.toString());
         List<Allocation> allocationList = scoreDirector.getWorkingSolution().getAllocations();
         List<ResourceNode> resourceNodeList = scoreDirector.getWorkingSolution().getResourceNodes();
         int[][] adjMatrix = new int[allocationList.size()][allocationList.size()];
@@ -96,6 +96,8 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
         }
 
         if (visited.size() < allocationList.size()) {
+            logger.info("Loop detected in DAG");
+
             return false;
         } else if (visited.size() > allocationList.size()) {
             throw new RuntimeException("Visited size is larger than allocationList size");

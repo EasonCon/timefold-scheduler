@@ -3,6 +3,7 @@ package Domain.Listen;
 import DataStruct.ExecutionMode;
 import Domain.Allocation.Allocation;
 import Domain.Allocation.AllocationOrResource;
+import Domain.Allocation.ResourceNode;
 import Domain.Scheduler;
 import ai.timefold.solver.core.api.domain.variable.VariableListener;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
@@ -44,19 +45,36 @@ public class PreviousAllocationRangeListener implements VariableListener<Schedul
     public void updatePreviousAllocationRange(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
         // 1.Resource from operation execution mode.
         // 2.Allocation from resource chained.
-        List<AllocationOrResource> allocations = new ArrayList<>();
+        List<ResourceNode> resourceList = new ArrayList<>();
         for (ExecutionMode executionMode : allocation.getOperation().getExecutionModes()) {
-            allocations.add(executionMode.getResourceRequirement().getResourceNode());
+            resourceList.add(executionMode.getResourceRequirement().getResourceNode());
         }
 
-        for(AllocationOrResource allocationOrResource : allocations){
-            if(allocationOrResource instanceof Allocation && allocationOrResource != allocation)
-                allocations.add(allocationOrResource);
+        List<AllocationOrResource> allocations = new ArrayList<>(resourceList);
+        for (ResourceNode resourceNode : resourceList) {
+            if (resourceNode.getNext() != null) {
+                Allocation cursor = resourceNode.getNext();
+                while (cursor != null) {
+                    if (cursor != allocation) {
+                        allocations.add(cursor);
+                    }
+                    cursor = cursor.getNext();
+                }
+            }
         }
 
         scoreDirector.beforeVariableChanged(allocation, "possiblePreviousAllocation");
         allocation.setPossiblePreviousAllocation(allocations);
         scoreDirector.afterVariableChanged(allocation, "possiblePreviousAllocation");
 
+        // dubug
+//        for (AllocationOrResource allocationOrResource : allocations) {
+//            if (allocationOrResource instanceof Allocation) {
+//                System.out.println(((Allocation) allocationOrResource).getId());
+//            } else {
+//                System.out.println(((ResourceNode) allocationOrResource).getId());
+//            }
+//        }
+//        System.out.println(allocation.getId() + "value range变更结束");
     }
 }
