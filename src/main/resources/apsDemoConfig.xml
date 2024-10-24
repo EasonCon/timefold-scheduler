@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver>
+    <!-- Solution class -->
+    <solutionClass>Domain.Scheduler</solutionClass>
+
+    <!-- Entity classes -->
+    <entityClass>Domain.Allocation.Allocation</entityClass>
+    <entityClass>Domain.Allocation.AllocationOrResource</entityClass>
+
+    <constructionHeuristic>
+        <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
+    </constructionHeuristic>
+
+    <localSearch>
+        <moveSelector>
+            <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+        </moveSelector>
+    </localSearch>
+
+    <!-- Constraint provider class -->
+    <scoreDirectorFactory>
+        <constraintProviderClass>Domain.SchedulerConstraintProvider</constraintProviderClass>
+    </scoreDirectorFactory>
+
+    <!-- Termination configuration: time spent limit -->
+    <termination>
+        <spentLimit>2s</spentLimit>
+    </termination>
+</solver>

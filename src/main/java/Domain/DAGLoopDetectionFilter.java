@@ -8,9 +8,12 @@ import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.Selectio
 
 import java.util.*;
 
+import static App.Main.logger;
+
 public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> {
     @Override
     public boolean accept(ScoreDirector<Scheduler> scoreDirector, Move move) {
+        logger.info("Checking if move {} is valid", move.toString());
         List<Allocation> allocationList = scoreDirector.getWorkingSolution().getAllocations();
         List<ResourceNode> resourceNodeList = scoreDirector.getWorkingSolution().getResourceNodes();
         int[][] adjMatrix = new int[allocationList.size()][allocationList.size()];

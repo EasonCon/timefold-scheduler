@@ -52,7 +52,7 @@ public class BaseReNewResourceListener implements VariableListener<Scheduler, Al
             scoreDirector.afterVariableChanged(allocation.getNext(), "previous");
         }
 
-        // Add to new list TODO:Currently add at last
+        // Add to new list TODO:Currently add at last,may cause loop problem
         AllocationOrResource cursor = newResource;
         while (cursor.getNext() != null) {
             cursor = cursor.getNext();

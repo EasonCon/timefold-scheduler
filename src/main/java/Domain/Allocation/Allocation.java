@@ -82,4 +82,8 @@ public class Allocation extends AllocationOrResource {
 
     public Allocation() {
     }
+
+    public int getTaskDelay() {
+        return 1;
+    }
 }

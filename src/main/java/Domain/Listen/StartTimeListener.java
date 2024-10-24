@@ -55,7 +55,10 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
 
         // Alternating transmission of influence
-        // 思路：从当前allocation开始向后构建DAG，利用环检测方法更新start time
+        // 思路：从当前allocation开始向后构建DAG，利用环检测方法更新start time TODO
+        scoreDirector.beforeVariableChanged(allocation, "startTime");
+        allocation.setStartTime(3L);
+        scoreDirector.afterVariableChanged(allocation, "startTime");
 
     }
 }
