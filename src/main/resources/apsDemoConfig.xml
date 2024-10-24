@@ -12,10 +12,12 @@
     </constructionHeuristic>
 
     <localSearch>
-        <moveSelector>
+        <changeMoveSelector>
             <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-        </moveSelector>
-    </localSearch>
+        </changeMoveSelector>
+    </localSearch>>
+
+
 
     <!-- Constraint provider class -->
     <scoreDirectorFactory>
@@ -24,6 +26,6 @@
 
     <!-- Termination configuration: time spent limit -->
     <termination>
-        <spentLimit>2s</spentLimit>
+        <spentLimit>PT0M1S</spentLimit>
     </termination>
 </solver>

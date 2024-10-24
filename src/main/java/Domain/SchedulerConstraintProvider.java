@@ -10,15 +10,9 @@ import java.util.Random;
 public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.score.stream.ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
-        return new Constraint[]{
-                taskDelay(constraintFactory)
-        };
+        return new Constraint[0];
     }
 
-    private Constraint taskDelay(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Allocation.class)
-                .penalize("Task delay penalty", HardMediumSoftScore.ONE_HARD, Allocation::getTaskDelay);
-    }
 
     public SchedulerConstraintProvider() {
     }

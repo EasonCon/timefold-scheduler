@@ -5,15 +5,19 @@ import Domain.Allocation.ResourceNode;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
 import ai.timefold.solver.core.impl.heuristic.move.Move;
 import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static App.Main.logger;
 
 public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> {
+    private static final Logger logger = LoggerFactory.getLogger(DAGLoopDetectionFilter.class);
+
     @Override
     public boolean accept(ScoreDirector<Scheduler> scoreDirector, Move move) {
-        logger.info("Checking if move {} is valid", move.toString());
+        // TODO:O(n^2) --> O(V·E)
+        logger.info("DAGLoopDetectionFilter accept:{}",move.toString());
         List<Allocation> allocationList = scoreDirector.getWorkingSolution().getAllocations();
         List<ResourceNode> resourceNodeList = scoreDirector.getWorkingSolution().getResourceNodes();
         int[][] adjMatrix = new int[allocationList.size()][allocationList.size()];
@@ -35,7 +39,7 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
         for (int i = 0; i < resourceNodeList.size(); i++) {
             if (resourceNodeList.get(i).getNext() != null) {
                 Allocation cursor = resourceNodeList.get(i).getNext();
-                while (cursor != null) {
+                while (cursor.getNext() != null) {
                     adjMatrix[allocationList.indexOf(cursor)][allocationList.indexOf(cursor.getNext())] = 1;
                     cursor = cursor.getNext();
                 }

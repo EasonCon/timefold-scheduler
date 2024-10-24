@@ -26,10 +26,18 @@ import java.util.List;
 
 public class Main {
     private static final String filePath = "data.xlsx";
-    public static final Logger logger = LoggerFactory.getLogger(Main.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 
     public static void main(String[] args) {
+        Scheduler problem = generateData();
+        SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
+        Solver<Scheduler> solver = solverFactory.buildSolver();
+        Scheduler solution = solver.solve(problem);
+
+    }
+
+    public static Scheduler generateData() {
         ResourceNode resource1 = new ResourceNode();
         ResourceNode resource2 = new ResourceNode();
         resource1.setId("resource1");
@@ -95,33 +103,24 @@ public class Main {
 
         allocation1.setSuccessorsAllocations(new ArrayList<>(List.of(allocation2)));
         allocation2.setPredecessorsAllocations(new ArrayList<>(List.of(allocation1)));
-        allocation1.setResourceNode(resource1);
-        allocation1.setExecutionMode(mod1_1);
-        allocation2.setResourceNode(resource2);
-        allocation2.setExecutionMode(mod2_2);
+//        allocation1.setResourceNode(resource1);
+//        allocation2.setResourceNode(resource2);
 
-        allocation1.setPrevious(resource1);
-        resource1.setNext(allocation1);
+//        allocation1.setPrevious(resource1);
+//        resource1.setNext(allocation1);
+//
+//        allocation2.setPrevious(allocation1);
+//        allocation1.setNext(allocation2);
 
-        allocation2.setPrevious(allocation1);
-        allocation1.setNext(allocation2);
+        allocation1.setPossiblePreviousAllocation(new ArrayList<>(List.of(resource2)));
+        allocation2.setPossiblePreviousAllocation(new ArrayList<>(List.of(resource1)));
 
         Scheduler problem = new Scheduler();
         problem.setId("sch1");
         problem.setAllocations(new ArrayList<>(List.of(allocation1, allocation2)));
         problem.setResourceNodes(new ArrayList<>(List.of(resource1, resource2)));
 
-//        SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
-
-
-        SolverFactory<Scheduler> solverFactory = SolverFactory.create(new SolverConfig()
-                .withSolutionClass(Scheduler.class)  // 指定 solution class
-                .withEntityClasses(Allocation.class, AllocationOrResource.class)  // 指定 entity classes
-                .withConstraintProviderClass(SchedulerConstraintProvider.class)  // 指定约束类
-                .withTerminationSpentLimit(Duration.ofSeconds(2))  // 设置时间限制
-        );
-        Solver<Scheduler> solver = solverFactory.buildSolver();
-        Scheduler solution = solver.solve(problem);
+        return problem;
 
     }
 }

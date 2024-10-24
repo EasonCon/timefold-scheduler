@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="ai.timefold.solver" level="DEBUG"/>
+    <logger name="ai.timefold.solver" level="INFO"/>
 
     <root level="info">
         <appender-ref ref="consoleAppender" />

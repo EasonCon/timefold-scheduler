@@ -47,7 +47,7 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
     public void updateStartTime(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
         if (allocation.getPrevious() instanceof ResourceNode && allocation.getPredecessorsAllocations() == null) {
             scoreDirector.beforeVariableChanged(allocation, "startTime");
-            allocation.setStartTime(allocation.getBaseResource().getTimeSlots().getFirst().getStart());
+            allocation.setStartTime(allocation.getResourceNode().getTimeSlots().getFirst().getStart());
             scoreDirector.afterVariableChanged(allocation, "startTime");
         } else {
             Allocation previousAllocation = (Allocation) allocation.getPrevious();
