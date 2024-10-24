@@ -4,6 +4,7 @@ import DataStruct.TimeSlot;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,14 @@ public class ResourceNode extends AllocationOrResource {
     private List<TimeSlot> timeSlots = new ArrayList<>();
 
     public ResourceNode() {
+    }
 
+    public Long getEndTime(Long startTime, long duration) {
+        if (startTime == null) {
+            return null;
+        }
+        for(TimeSlot timeSlot : timeSlots) {
+
+        }
     }
 }

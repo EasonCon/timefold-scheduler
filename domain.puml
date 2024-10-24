@@ -1,21 +1,203 @@
 @startuml
-class Domain.Allocation.ResourceNode {
-}
-abstract class Domain.Allocation.AllocationOrResource {
-}
-class Domain.Allocation.Allocation {
-+ List<ExecutionMode> getExecutionModes()
-+ CountableValueRange<Integer> getDelayRange()
-+ List<AllocationOrResource> getPossiblePreviousList()
+class Domain.Listen.StartTimeListener {
++ void beforeVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void afterVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityRemoved(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityRemoved(ScoreDirector<Scheduler>,Allocation)
++ void updateStartTime(ScoreDirector<Scheduler>,Allocation)
 }
 
+class Domain.SchedulerConstraintProvider {
++ Constraint[] defineConstraints(ConstraintFactory)
+}
+
+enum DataStruct.SupplyType {
++  MO
++  MRP
++  PLAN
++  PO
++  PR
++  SO
+}
+
+class Domain.Listen.BaseReNewResourceListener {
++ void beforeVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void afterVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityRemoved(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityRemoved(ScoreDirector<Scheduler>,Allocation)
+}
+
+class Domain.Allocation.ResourceNode {
+- String id
+- String name
+- List<TimeSlot> timeSlots
+}
+
+class Utils.RandomStringGenerator {
+- {static} String CHARACTERS
+- {static} SecureRandom RANDOM
++ {static} String generateRandomString(int)
+}
+
+
+abstract class DataStruct.Labeled {
+- String id
++ int hashCode()
+}
+
+
 class Domain.Scheduler {
+- String id
+- String name
+- List<ResourceNode> resourceNodes
+- List<Allocation> allocations
+- HardMediumSoftScore hardMediumSoftScore
 + boolean dataCheck()
 }
 
 
+class DataStruct.TimeSlot {
+- String shiftID
+- long start
+- long end
++ long getWorkingSeconds()
+}
 
+
+enum DataStruct.OperationStartRelationShip {
++  SS
++  ES
+}
+
+class Domain.Listen.PreviousAllocationRangeListener {
++ void beforeVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void afterVariableChanged(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityAdded(ScoreDirector<Scheduler>,Allocation)
++ void beforeEntityRemoved(ScoreDirector<Scheduler>,Allocation)
++ void afterEntityRemoved(ScoreDirector<Scheduler>,Allocation)
++ void updatePreviousAllocationRange(ScoreDirector<Scheduler>,Allocation)
+}
+
+class DataStruct.ExecutionMode {
+- Operation operation
+- ResourceRequirement resourceRequirement
+- int priority
+- float beat
+- float quantityPerBeat
++ long getDuration()
+}
+
+
+enum DataStruct.TaskType {
++  PARENT
++  CHILD
+}
+
+class DataStruct.ResourceRequirement {
+- ResourceNode resourceNode
+}
+
+enum DataStruct.ProductionMethod {
++  SELF
++  OUTSOURCING
+}
+
+class DataStruct.Task {
+- String materialId
+- String materialDescription
+- float quantity
+- List<Operation> craftPath
+- List<MasterDemand> masterDemands
+- SupplyType supplyType
+- long earliestStartTime
+- long latestStartTime
+- long materialSetTime
++ boolean LegalityJudgment()
+}
+
+
+abstract class Domain.Allocation.AllocationOrResource {
+- Allocation next
+}
+
+class DataStruct.MasterDemand {
+- long requiredDate
+- long deliveryDate
+- long breachDate
+- long promisedDate
+- long prePromisedDate
+}
+
+class App.Main {
+- {static} String filePath
+- {static} Logger logger
++ {static} void main(String[])
++ {static} Scheduler generateData()
+}
+
+
+class DataStruct.Operation {
+- String name
+- int order
+- Task parentTask
+- long quantity
+- List<ExecutionMode> executionModes
+- List<Operation> previousOperations
+- List<Operation> nextOperations
+- ProductionMethod productionMethod
+- long resourceOccupiedPostTime
+- long NonResourceOccupiedPostTime
+- OperationStartRelationShip operationStartRelationShip
+- boolean isCriticalPath
+- long batchSize
+- boolean isLocked
+- int plannedStartTime
+- int plannedEndTime
+- ResourceNode plannedResource
+- boolean isFirst
+- boolean isLast
+}
+
+class Domain.Allocation.Allocation {
+- String id
+- Operation operation
+- List<Allocation> predecessorsAllocations
+- List<Allocation> successorsAllocations
+- List<ResourceNode> allResources
+- List<AllocationOrResource> possiblePreviousAllocation
+- AllocationOrResource previous
+- Integer delay
+- ResourceNode resourceNode
+- Long startTime
+- Long endTime
++ CountableValueRange<Integer> getDelayRange()
++ int getTaskDelay()
+}
+
+
+class Domain.DAGLoopDetectionFilter {
+- {static} Logger logger
++ boolean accept(ScoreDirector<Scheduler>,Move)
+}
+
+
+
+
+ai.timefold.solver.core.api.domain.variable.VariableListener <|.. Domain.Listen.StartTimeListener
+Domain.ConstraintProvider <|.. Domain.SchedulerConstraintProvider
+ai.timefold.solver.core.api.domain.variable.VariableListener <|.. Domain.Listen.BaseReNewResourceListener
 Domain.Allocation.AllocationOrResource <|-- Domain.Allocation.ResourceNode
+ai.timefold.solver.core.api.domain.variable.VariableListener <|.. Domain.Listen.PreviousAllocationRangeListener
+DataStruct.Labeled <|-- DataStruct.ExecutionMode
+DataStruct.Labeled <|-- DataStruct.ResourceRequirement
+DataStruct.Labeled <|-- DataStruct.Task
+DataStruct.Labeled <|-- DataStruct.MasterDemand
+DataStruct.Labeled <|-- DataStruct.Operation
 Domain.Allocation.AllocationOrResource <|-- Domain.Allocation.Allocation
-DataStruct.Labeled <|-- Domain.Scheduler
+ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionFilter <|.. Domain.DAGLoopDetectionFilter
 @enduml
