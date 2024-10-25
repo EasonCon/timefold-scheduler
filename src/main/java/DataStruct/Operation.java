@@ -27,8 +27,8 @@ public class Operation extends Labeled {
 
     // keep stable scheduling result
     private boolean isLocked;
-    private int plannedStartTime;
-    private int plannedEndTime;
+    private Integer plannedStartTime;
+    private Integer plannedEndTime;
     private ResourceNode plannedResource;
 
     // for judging position of operation

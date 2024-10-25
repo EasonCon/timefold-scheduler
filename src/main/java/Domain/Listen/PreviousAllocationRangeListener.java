@@ -67,14 +67,5 @@ public class PreviousAllocationRangeListener implements VariableListener<Schedul
         allocation.setPossiblePreviousAllocation(allocations);
         scoreDirector.afterVariableChanged(allocation, "possiblePreviousAllocation");
 
-        // dubug
-//        for (AllocationOrResource allocationOrResource : allocations) {
-//            if (allocationOrResource instanceof Allocation) {
-//                System.out.println(((Allocation) allocationOrResource).getId());
-//            } else {
-//                System.out.println(((ResourceNode) allocationOrResource).getId());
-//            }
-//        }
-//        System.out.println(allocation.getId() + "value range变更结束");
     }
 }
