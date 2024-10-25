@@ -23,12 +23,12 @@ public class Operation extends Labeled {
     private long NonResourceOccupiedPostTime;
     private OperationStartRelationShip operationStartRelationShip;
     private boolean isCriticalPath;
-    private long batchSize;
+    private Long batchSize;
 
     // keep stable scheduling result
     private boolean isLocked;
-    private Integer plannedStartTime;
-    private Integer plannedEndTime;
+    private Long plannedStartTime;
+    private Long plannedEndTime;
     private ResourceNode plannedResource;
 
     // for judging position of operation

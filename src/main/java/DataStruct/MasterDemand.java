@@ -6,11 +6,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MasterDemand extends Labeled {
-    private long requiredDate;
-    private long deliveryDate;
-    private long breachDate;
-    private long promisedDate;
-    private long prePromisedDate;
+    private Long requiredDate;
+    private Long deliveryDate;
+    private Long breachDate;
+    private Long promisedDate;
+    private Long prePromisedDate;
 
     public MasterDemand() {
         super(null);

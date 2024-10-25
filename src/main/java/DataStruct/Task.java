@@ -17,9 +17,9 @@ public class Task extends Labeled {
     private List<Operation> craftPath = new ArrayList<>();
     private List<MasterDemand> masterDemands = new ArrayList<>();
     private SupplyType supplyType;
-    private long earliestStartTime;
-    private long latestStartTime;
-    private long materialSetTime;
+    private Long earliestStartTime;
+    private Long latestStartTime;
+    private Long materialSetTime;
 
 
     public Task() {
