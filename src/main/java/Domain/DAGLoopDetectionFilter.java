@@ -96,7 +96,7 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
         }
 
         if (visited.size() < allocationList.size()) {
-            logger.info("Loop detected in DAG");
+            logger.debug("Loop detected in DAG");
 
             return false;
         } else if (visited.size() > allocationList.size()) {

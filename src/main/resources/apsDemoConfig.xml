@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <solver>
+    <environmentMode>FULL_ASSERT</environmentMode>
+
     <!-- Solution class -->
     <solutionClass>Domain.Scheduler</solutionClass>
 
@@ -12,10 +14,21 @@
     </constructionHeuristic>
 
     <localSearch>
-        <changeMoveSelector>
-            <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-        </changeMoveSelector>
-    </localSearch>>
+        <unionMoveSelector>
+            <changeMoveSelector>
+                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+            </changeMoveSelector>
+            <swapMoveSelector>
+                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+            </swapMoveSelector>
+            <subChainChangeMoveSelector>
+                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+            </subChainChangeMoveSelector>
+            <subChainSwapMoveSelector>
+                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+            </subChainSwapMoveSelector>
+        </unionMoveSelector>
+    </localSearch>
 
 
 

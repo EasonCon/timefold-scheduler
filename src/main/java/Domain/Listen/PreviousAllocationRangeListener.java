@@ -10,6 +10,7 @@ import ai.timefold.solver.core.api.score.director.ScoreDirector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class PreviousAllocationRangeListener implements VariableListener<Scheduler, Allocation> {
     @Override
@@ -45,6 +46,15 @@ public class PreviousAllocationRangeListener implements VariableListener<Schedul
     public void updatePreviousAllocationRange(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
         // 1.Resource from operation execution mode.
         // 2.Allocation from resource chained.
+        System.out.println(allocation.getId() + "变量监听开始,当前possiblePreviousAllocation:");
+        for (AllocationOrResource pre : allocation.getPossiblePreviousAllocation()) {
+            if (pre instanceof ResourceNode) {
+                System.out.println(((ResourceNode) pre).getId());
+            }
+            if (pre instanceof Allocation) {
+                System.out.println(((Allocation) pre).getId());
+            }
+        }
         List<ResourceNode> resourceList = new ArrayList<>();
         for (ExecutionMode executionMode : allocation.getOperation().getExecutionModes()) {
             resourceList.add(executionMode.getResourceRequirement().getResourceNode());
@@ -55,7 +65,7 @@ public class PreviousAllocationRangeListener implements VariableListener<Schedul
             if (resourceNode.getNext() != null) {
                 Allocation cursor = resourceNode.getNext();
                 while (cursor != null) {
-                    if (cursor != allocation) {
+                    if (!Objects.equals(cursor.getId(), allocation.getId())) {
                         allocations.add(cursor);
                     }
                     cursor = cursor.getNext();
@@ -66,6 +76,16 @@ public class PreviousAllocationRangeListener implements VariableListener<Schedul
         scoreDirector.beforeVariableChanged(allocation, "possiblePreviousAllocation");
         allocation.setPossiblePreviousAllocation(allocations);
         scoreDirector.afterVariableChanged(allocation, "possiblePreviousAllocation");
+
+        System.out.println("变量监听结束,变更后possiblePreviousAllocation:");
+        for (AllocationOrResource pre : allocation.getPossiblePreviousAllocation()) {
+            if (pre instanceof ResourceNode) {
+                System.out.println(((ResourceNode) pre).getId());
+            }
+            if (pre instanceof Allocation) {
+                System.out.println(((Allocation) pre).getId());
+            }
+        }
 
     }
 }

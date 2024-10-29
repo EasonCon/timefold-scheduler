@@ -34,6 +34,21 @@ public class Main {
         SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
         Solver<Scheduler> solver = solverFactory.buildSolver();
         Scheduler solution = solver.solve(problem);
+        print(solution);
+    }
+
+    public static void print(Scheduler solution) {
+        for (ResourceNode resourceNode : solution.getResourceNodes()) {
+            System.out.print("资源结果:" + resourceNode.getId());
+            if (resourceNode.getNext() != null) {
+                Allocation allocation = resourceNode.getNext();
+                while (allocation != null) {
+                    System.out.print(" -> " + allocation.getId() + ":" + allocation.getStartTime());
+                    allocation = allocation.getNext();
+                }
+            }
+            System.out.println();
+        }
 
     }
 
@@ -42,8 +57,11 @@ public class Main {
         ResourceNode resource2 = new ResourceNode();
         resource1.setId("resource1");
         resource2.setId("resource2");
-        resource1.getTimeSlots().add(new TimeSlot("shift1", 0L, 10L));
-        resource2.getTimeSlots().add(new TimeSlot("shift2", 0L, 10L));
+        resource1.getTimeSlots().add(new TimeSlot("shift11", 0L, 10L));
+        resource1.getTimeSlots().add(new TimeSlot("shift12", 15L, 25L));
+
+        resource2.getTimeSlots().add(new TimeSlot("shift21", 0L, 10L));
+        resource2.getTimeSlots().add(new TimeSlot("shift22", 15L, 25L));
 
 
         Task task = new Task();
@@ -55,8 +73,12 @@ public class Main {
 
         Operation op1 = new Operation();
         Operation op2 = new Operation();
+        op1.setId("op1");
+        op2.setId("op2");
         op1.setQuantity(2);
         op2.setQuantity(3);
+        op1.setOperationStartRelationShip(OperationStartRelationShip.ES);
+        op2.setOperationStartRelationShip(OperationStartRelationShip.ES);
 
         ExecutionMode mod1_1 = new ExecutionMode();
         ExecutionMode mod1_2 = new ExecutionMode();
@@ -94,26 +116,25 @@ public class Main {
         Allocation allocation1 = new Allocation();
         allocation1.setId("allocation1");
         allocation1.setOperation(op1);
-        allocation1.setStartTime(0L);
+
 
         Allocation allocation2 = new Allocation();
         allocation2.setId("allocation2");
         allocation2.setOperation(op2);
-        allocation2.setStartTime(1L);
+
 
         allocation1.setSuccessorsAllocations(new ArrayList<>(List.of(allocation2)));
         allocation2.setPredecessorsAllocations(new ArrayList<>(List.of(allocation1)));
+
+        allocation1.setAllResources(new ArrayList<>(List.of(resource1, resource2)));
+        allocation2.setAllResources(new ArrayList<>(List.of(resource1, resource2)));
+
 //        allocation1.setResourceNode(resource1);
 //        allocation2.setResourceNode(resource2);
-
 //        allocation1.setPrevious(resource1);
 //        resource1.setNext(allocation1);
-//
-//        allocation2.setPrevious(allocation1);
-//        allocation1.setNext(allocation2);
-
-        allocation1.setPossiblePreviousAllocation(new ArrayList<>(List.of(resource2)));
-        allocation2.setPossiblePreviousAllocation(new ArrayList<>(List.of(resource1)));
+//        allocation2.setPrevious(resource2);
+//        resource2.setNext(allocation2);
 
         Scheduler problem = new Scheduler();
         problem.setId("sch1");

@@ -1,5 +1,6 @@
 package Domain.Allocation;
 
+import DataStruct.ExecutionMode;
 import DataStruct.Operation;
 import Domain.Listen.PreviousAllocationRangeListener;
 import Domain.Listen.StartTimeListener;
@@ -14,6 +15,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -25,24 +27,21 @@ public class Allocation extends AllocationOrResource {
     private List<Allocation> predecessorsAllocations = new ArrayList<>();  // In craft path
     private List<Allocation> successorsAllocations = new ArrayList<>();
     private List<ResourceNode> allResources = new ArrayList<>();
-
-    @ShadowVariable(variableListenerClass = PreviousAllocationRangeListener.class, sourceVariableName = "previous")
-    @ValueRangeProvider(id = "previousRange")
-    private List<AllocationOrResource> possiblePreviousAllocation = new ArrayList<>();
+    private List<AllocationOrResource> possiblePreviousAllocation;
+    private List<Allocation> allocations;
 
     // variables
-    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"previousRange"})
+    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"resourceNodes","allocations"})
     private AllocationOrResource previous;
 
-    @PlanningVariable(valueRangeProviderRefs = {"delayRange"})
-    private Integer delay;  // minutes
+//    @PlanningVariable(valueRangeProviderRefs = {"delayRange"})
+//    private Integer delay;  // minutes
 
     // shadow
     @AnchorShadowVariable(sourceVariableName = "previous")
     private ResourceNode resourceNode;
 
-    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
-    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "delay")
+    //    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
     private Long startTime;
     private Long endTime;
 
@@ -53,11 +52,36 @@ public class Allocation extends AllocationOrResource {
         return ValueRangeFactory.createIntValueRange(0, 600, 30);
     }
 
+    @ValueRangeProvider(id = "previousRange")
+    public List<AllocationOrResource> getPossiblePreviousAllocation() {
+        List<ResourceNode> resourceList = new ArrayList<>();
+        for (ExecutionMode executionMode : this.getOperation().getExecutionModes()) {
+            String id = executionMode.getResourceRequirement().getResourceNode().getId();
+            for (ResourceNode resourceNode : this.getAllResources()) {
+                if (Objects.equals(resourceNode.getId(), id))
+                    resourceList.add(resourceNode);
+            }
+        }
+        List<AllocationOrResource> allocations = new ArrayList<>(resourceList);
+        for (ResourceNode resourceNode : resourceList) {
+            if (resourceNode.getNext() != null) {
+                Allocation cursor = resourceNode.getNext();
+                while (cursor != null) {
+                    if (!Objects.equals(cursor.getId(), this.getId())) {
+                        allocations.add(cursor);
+                    }
+                    cursor = cursor.getNext();
+                }
+            }
+        }
+        return allocations;
+    }
+
+    public Long getEndTime() {
+        return this.getResourceNode().getEndTime(this.getStartTime(), 12L);
+    }
 
     public Allocation() {
     }
 
-    public int getDelay() {
-        return 0;
-    }
 }

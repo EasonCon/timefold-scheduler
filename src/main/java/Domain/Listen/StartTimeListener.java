@@ -101,6 +101,7 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
     }
 
     public void updateStartTimeWhileMoving(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
+        updateOneAllocationStartTime(scoreDirector, allocation);
         List<Allocation> allocationList = scoreDirector.getWorkingSolution().getAllocations();
         List<ResourceNode> resourceNodeList = scoreDirector.getWorkingSolution().getResourceNodes();
         int[][] adjMatrix = new int[allocationList.size()][allocationList.size()];
@@ -155,6 +156,9 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
             }
             if (allocationIsReady) {
                 //
+                if(head.getStartTime() == null || allocation.getStartTime() == null){
+                    continue;
+                }
                 if (head.getStartTime() > allocation.getStartTime()) {
                     this.updateOneAllocationStartTime(scoreDirector, head);
                 }
