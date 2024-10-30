@@ -3,7 +3,7 @@ package Domain.Listen;
 import DataStruct.OperationStartRelationShip;
 import Domain.Allocation.Allocation;
 import Domain.Allocation.AllocationOrResource;
-import Domain.Allocation.ResourceNode;
+import DataStruct.ResourceNode;
 import Domain.Scheduler;
 import ai.timefold.solver.core.api.domain.variable.VariableListener;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
@@ -36,7 +36,6 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
     @Override
     public void afterEntityAdded(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
-        updateOneAllocationStartTime(scoreDirector, allocation);
     }
 
     @Override
@@ -50,6 +49,10 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
     }
 
     public void updateOneAllocationStartTime(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
+        // Before all allocations get its position,all pointers of previous are null.
+        if(allocation.getPrevious() == null){
+            return;
+        }
         scoreDirector.beforeVariableChanged(allocation, "startTime");
         AllocationOrResource previous = allocation.getPrevious();
         Long startTimeFromResource;
@@ -82,6 +85,13 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
         List<Long> predecessorsTimeConstraints = new ArrayList<>();
         for (Allocation predecessor : allocation.getPredecessorsAllocations()) {
+            Long predecessorStartTime = predecessor.getStartTime();
+            Long predecessorEndTime = predecessor.getEndTime();
+            if (predecessorStartTime == null || predecessorEndTime == null) {
+                allocation.setStartTime(startTimeFromResource);
+                scoreDirector.afterVariableChanged(allocation, "startTime");
+                return;
+            }
             if (allocation.getOperation().getOperationStartRelationShip().equals(OperationStartRelationShip.ES)) {
                 predecessorsTimeConstraints.add(predecessor.getEndTime() + predecessor.getOperation().getNonResourceOccupiedPostTime());
             } else {

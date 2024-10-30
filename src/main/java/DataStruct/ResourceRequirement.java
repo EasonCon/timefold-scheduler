@@ -1,6 +1,5 @@
 package DataStruct;
 
-import Domain.Allocation.ResourceNode;
 import lombok.Getter;
 import lombok.Setter;
 

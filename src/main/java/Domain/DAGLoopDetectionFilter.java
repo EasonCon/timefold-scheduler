@@ -1,9 +1,10 @@
 package Domain;
 
 import Domain.Allocation.Allocation;
-import Domain.Allocation.ResourceNode;
+import DataStruct.ResourceNode;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
 import ai.timefold.solver.core.impl.heuristic.move.Move;
+
 import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,8 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
     @Override
     public boolean accept(ScoreDirector<Scheduler> scoreDirector, Move move) {
         // TODO:O(n^2) --> O(V·E)
-        logger.debug("DAGLoopDetectionFilter accept:{}",move.toString());
+        // TODO:Store degree of each node
+
         List<Allocation> allocationList = scoreDirector.getWorkingSolution().getAllocations();
         List<ResourceNode> resourceNodeList = scoreDirector.getWorkingSolution().getResourceNodes();
         int[][] adjMatrix = new int[allocationList.size()][allocationList.size()];
@@ -96,12 +98,13 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Move> 
         }
 
         if (visited.size() < allocationList.size()) {
-            logger.debug("Loop detected in DAG");
+            logger.info("Loop detected in DAG");
 
             return false;
         } else if (visited.size() > allocationList.size()) {
             throw new RuntimeException("Visited size is larger than allocationList size");
         } else {
+            logger.info("DAGLoopDetectionFilter accept:{}",move.toString());
             return true;
         }
     }

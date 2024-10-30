@@ -1,6 +1,6 @@
-package Domain.Allocation;
+package DataStruct;
 
-import DataStruct.TimeSlot;
+import Domain.Allocation.AllocationOrResource;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +10,6 @@ import java.util.List;
 @Setter
 @Getter
 public class ResourceNode extends AllocationOrResource {
-
-    private String id;
     private String name;
     private List<TimeSlot> timeSlots = new ArrayList<>();
 

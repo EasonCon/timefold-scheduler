@@ -1,8 +1,6 @@
 package Domain.Listen;
 
 import Domain.Allocation.Allocation;
-import Domain.Allocation.AllocationOrResource;
-import Domain.Allocation.ResourceNode;
 import Domain.Scheduler;
 import ai.timefold.solver.core.api.domain.variable.VariableListener;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;

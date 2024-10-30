@@ -1,8 +1,8 @@
 package Domain;
 
+import DataStruct.Task;
 import Domain.Allocation.Allocation;
-import Domain.Allocation.ResourceNode;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import DataStruct.ResourceNode;
 import ai.timefold.solver.core.api.domain.solution.PlanningEntityCollectionProperty;
 import ai.timefold.solver.core.api.domain.solution.PlanningScore;
 import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
@@ -17,11 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @PlanningSolution
-public class Scheduler {
-    @PlanningId
-    private String id;
-    private String name;
-
+public class Scheduler extends AbstractPerishable {
     @ValueRangeProvider(id = "resourceNodes")
     @ProblemFactCollectionProperty
     private List<ResourceNode> resourceNodes;
@@ -32,6 +28,9 @@ public class Scheduler {
 
     @PlanningScore
     private HardMediumSoftScore hardMediumSoftScore;
+    private List<Task> tasks;
+
+
 
     public Scheduler() {
     }

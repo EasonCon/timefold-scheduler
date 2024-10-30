@@ -13,23 +13,28 @@
         <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
     </constructionHeuristic>
 
-    <localSearch>
-        <unionMoveSelector>
-            <changeMoveSelector>
-                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-            </changeMoveSelector>
-            <swapMoveSelector>
-                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-            </swapMoveSelector>
-            <subChainChangeMoveSelector>
-                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-            </subChainChangeMoveSelector>
-            <subChainSwapMoveSelector>
-                <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
-            </subChainSwapMoveSelector>
-        </unionMoveSelector>
-    </localSearch>
+<!--        <localSearch>-->
+<!--            <unionMoveSelector>-->
+<!--                <changeMoveSelector>-->
+<!--                    <filterClass>Domain.DAGLoopDetectionFilter</filterClass>-->
+<!--                </changeMoveSelector>-->
+<!--                <swapMoveSelector>-->
+<!--                    <filterClass>Domain.DAGLoopDetectionFilter</filterClass>-->
+<!--                </swapMoveSelector>-->
+<!--                <subChainChangeMoveSelector>-->
+<!--                    <filterClass>Domain.DAGLoopDetectionFilter</filterClass>-->
+<!--                </subChainChangeMoveSelector>-->
+<!--                <subChainSwapMoveSelector>-->
+<!--                    <filterClass>Domain.DAGLoopDetectionFilter</filterClass>-->
+<!--                </subChainSwapMoveSelector>-->
+<!--            </unionMoveSelector>-->
+<!--        </localSearch>-->
 
+    <localSearch>
+        <changeMoveSelector>
+            <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
+        </changeMoveSelector>
+    </localSearch>
 
 
     <!-- Constraint provider class -->
@@ -39,6 +44,6 @@
 
     <!-- Termination configuration: time spent limit -->
     <termination>
-        <spentLimit>PT0M5S</spentLimit>
+        <spentLimit>PT0M1S</spentLimit>
     </termination>
 </solver>

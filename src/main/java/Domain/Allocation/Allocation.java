@@ -2,10 +2,9 @@ package Domain.Allocation;
 
 import DataStruct.ExecutionMode;
 import DataStruct.Operation;
-import Domain.Listen.PreviousAllocationRangeListener;
+import DataStruct.ResourceNode;
 import Domain.Listen.StartTimeListener;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
-import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
@@ -16,13 +15,12 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
 @PlanningEntity
 public class Allocation extends AllocationOrResource {
-    @PlanningId
-    private String id;
     private Operation operation;
     private List<Allocation> predecessorsAllocations = new ArrayList<>();  // In craft path
     private List<Allocation> successorsAllocations = new ArrayList<>();
@@ -31,7 +29,7 @@ public class Allocation extends AllocationOrResource {
     private List<Allocation> allocations;
 
     // variables
-    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"resourceNodes","allocations"})
+    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"previousRange"})
     private AllocationOrResource previous;
 
 //    @PlanningVariable(valueRangeProviderRefs = {"delayRange"})
@@ -41,7 +39,7 @@ public class Allocation extends AllocationOrResource {
     @AnchorShadowVariable(sourceVariableName = "previous")
     private ResourceNode resourceNode;
 
-    //    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
+    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
     private Long startTime;
     private Long endTime;
 
@@ -62,7 +60,7 @@ public class Allocation extends AllocationOrResource {
                     resourceList.add(resourceNode);
             }
         }
-        List<AllocationOrResource> allocations = new ArrayList<>(resourceList);
+        List<AllocationOrResource> allocations = new ArrayList<>();
         for (ResourceNode resourceNode : resourceList) {
             if (resourceNode.getNext() != null) {
                 Allocation cursor = resourceNode.getNext();
@@ -74,6 +72,7 @@ public class Allocation extends AllocationOrResource {
                 }
             }
         }
+        allocations.addAll(resourceList);
         return allocations;
     }
 

@@ -1,7 +1,7 @@
 package Domain;
 
 import Domain.Allocation.Allocation;
-import Domain.Allocation.ResourceNode;
+import DataStruct.ResourceNode;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
@@ -12,27 +12,23 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[]{
-//                theSameResource(constraintFactory),
-                fixedPenalize(constraintFactory)
+//                fixedPenalize(constraintFactory
+                ensureValidResourceNode(constraintFactory)
         };
     }
 
 
-    protected Constraint theSameResource(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(ResourceNode.class)
-                .join(Allocation.class,
-                        Joiners.equal(ResourceNode::getId, Allocation::getId))
-                .groupBy((resourceNode, allocation) -> resourceNode,
-                        ConstraintCollectors.countBi())
-                .filter((resourceNode, allocationCount) -> allocationCount > 1)
-                .penalize(HardMediumSoftScore.ofHard(10),
-                        (resourceNode, allocationCount) -> allocationCount - 1)
-                .asConstraint("theSameResource1");
-    }
-
     protected Constraint fixedPenalize(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Allocation.class)
-                .penalize(HardMediumSoftScore.ofHard((int) (Math.random() * 100)))
+                .penalize(HardMediumSoftScore.ofSoft((int) (Math.random() * 100)))
                 .asConstraint("Fixed penalty for each allocation");
+    }
+
+    protected Constraint ensureValidResourceNode(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Allocation.class)
+                .filter(allocation -> allocation.getOperation().getExecutionModes().stream()
+                        .noneMatch(exec -> exec.getResourceRequirement().getResourceNode().getId().equals(allocation.getResourceNode().getId())))
+                .penalize(HardMediumSoftScore.ONE_HARD)
+                .asConstraint("Invalid resource node");
     }
 }
