@@ -50,64 +50,23 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
     public void updateOneAllocationStartTime(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
         // Before all allocations get its position,all pointers of previous are null.
-        if(allocation.getPrevious() == null){
+        if (allocation.getPrevious() == null) {
             return;
         }
+//        if(allocation.getId() == "allocation1"){
+//            System.out.println("allocation1");
+//        }
+        Long startTimeFromResource = allocation.TimeConstraintFromResource();
+        Long startTimeFromPredecessors = allocation.TimeConstraintFromCraftPath();
+
         scoreDirector.beforeVariableChanged(allocation, "startTime");
-        AllocationOrResource previous = allocation.getPrevious();
-        Long startTimeFromResource;
-        Long startTimeFromPredecessors;
-
-        // Time constraint from resource only considers post time which occupies the resource calendar.
-        if (previous instanceof ResourceNode) {
-            startTimeFromResource = ((ResourceNode) previous).getTimeSlots().getFirst().getStart();
+        if (startTimeFromResource == null || startTimeFromPredecessors == null) {
+            allocation.setStartTime(null);
         } else {
-            startTimeFromResource = ((Allocation) previous).getEndTime();
-        }
-        if (startTimeFromResource != null && previous instanceof Allocation) {
-            startTimeFromResource = allocation.getResourceNode().getEndTime(
-                    startTimeFromResource,
-                    ((Allocation) previous).getOperation().getResourceOccupiedPostTime()
-            );
-        }
-        if(startTimeFromResource == null){
-            allocation.setStartTime(null);
-            scoreDirector.afterVariableChanged(allocation, "startTime");
-            return;
-        }
-
-        // Time constraint from craft path considers non-resource occupied time.
-        if(allocation.getPredecessorsAllocations() == null){
-            allocation.setStartTime(startTimeFromResource);
-            scoreDirector.afterVariableChanged(allocation, "startTime");
-            return;
-        }
-
-        List<Long> predecessorsTimeConstraints = new ArrayList<>();
-        for (Allocation predecessor : allocation.getPredecessorsAllocations()) {
-            Long predecessorStartTime = predecessor.getStartTime();
-            Long predecessorEndTime = predecessor.getEndTime();
-            if (predecessorStartTime == null || predecessorEndTime == null) {
-                allocation.setStartTime(startTimeFromResource);
-                scoreDirector.afterVariableChanged(allocation, "startTime");
-                return;
-            }
-            if (allocation.getOperation().getOperationStartRelationShip().equals(OperationStartRelationShip.ES)) {
-                predecessorsTimeConstraints.add(predecessor.getEndTime() + predecessor.getOperation().getNonResourceOccupiedPostTime());
-            } else {
-                predecessorsTimeConstraints.add(predecessor.getStartTime());
-            }
-        }
-        startTimeFromPredecessors = predecessorsTimeConstraints.stream().max(Long::compare).orElse(null);
-
-        if(startTimeFromPredecessors == null) {
-            allocation.setStartTime(null);
-            scoreDirector.afterVariableChanged(allocation, "startTime");
-        }
-        else{
             allocation.setStartTime(Math.max(startTimeFromResource, startTimeFromPredecessors));
-            scoreDirector.afterVariableChanged(allocation, "startTime");
         }
+        scoreDirector.afterVariableChanged(allocation, "startTime");
+
     }
 
     public void updateStartTimeWhileMoving(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
@@ -166,7 +125,7 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
             }
             if (allocationIsReady) {
                 //
-                if(head.getStartTime() == null || allocation.getStartTime() == null){
+                if (head.getStartTime() == null || allocation.getStartTime() == null) {
                     continue;
                 }
                 if (head.getStartTime() > allocation.getStartTime()) {
@@ -193,5 +152,8 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
                 deque.addLast(head);
             }
         }
+    }
+
+    protected void notifyWorkingSolutionChanged(Allocation allocation) {
     }
 }

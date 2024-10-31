@@ -2,6 +2,7 @@ package Domain.Allocation;
 
 import DataStruct.ExecutionMode;
 import DataStruct.Operation;
+import DataStruct.OperationStartRelationShip;
 import DataStruct.ResourceNode;
 import Domain.Listen.StartTimeListener;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
@@ -77,7 +78,45 @@ public class Allocation extends AllocationOrResource {
     }
 
     public Long getEndTime() {
-        return this.getResourceNode().getEndTime(this.getStartTime(), 12L);
+        ExecutionMode selectedExecutionMode = this.getOperation().getExecutionModes().stream().filter(executionMode -> Objects.equals(executionMode.getResourceRequirement().getResourceNode().getId(), this.getResourceNode().getId())).findFirst().get();
+        return this.getResourceNode().getEndTime(this.getStartTime(), (long) (this.getOperation().getQuantity() * selectedExecutionMode.getBeat() / selectedExecutionMode.getQuantityPerBeat()));
+    }
+
+
+    public Long TimeConstraintFromResource() {
+        // Time constraint from resource only considers post time which occupies the resource calendar.
+        if (this.getPrevious() == null) {
+            return null;
+        } else if (this.getPrevious() instanceof ResourceNode) {
+            return ((ResourceNode) this.getPrevious()).getTimeSlots().getFirst().getStart();
+        } else {
+            return this.getResourceNode().getEndTime(
+                    ((Allocation) this.getPrevious()).getEndTime(),
+                    ((Allocation) this.getPrevious()).getOperation().getResourceOccupiedPostTime());
+        }
+    }
+
+    public Long TimeConstraintFromCraftPath() {
+        // Time constraint from craft path considers non-resource occupied time.
+        if (this.getPredecessorsAllocations().isEmpty()) {
+            return 0L;  // First operation
+        } else {
+            List<Long> predecessorsTimeConstraints = new ArrayList<>();
+            for (Allocation predecessor : this.getPredecessorsAllocations()) {
+                Long predecessorEndTime = predecessor.getEndTime();
+                if (this.getOperation().getOperationStartRelationShip().equals(OperationStartRelationShip.ES)) {
+                    if (predecessorEndTime != null) {
+                        predecessorsTimeConstraints.add(predecessor.getEndTime() + predecessor.getOperation().getNonResourceOccupiedPostTime());
+                    }
+                    else{
+                        return null;
+                    }
+                } else {
+                    predecessorsTimeConstraints.add(predecessor.getStartTime());
+                }
+            }
+            return predecessorsTimeConstraints.stream().max(Long::compare).orElse(null);
+        }
     }
 
     public Allocation() {

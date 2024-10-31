@@ -20,6 +20,9 @@ public class ResourceNode extends AllocationOrResource {
         if (startTime == null || startTime >= this.getTimeSlots().getLast().getEnd()) {
             return null;
         }
+        if (duration == 0) {
+            return startTime;
+        }
         long remainingDuration = duration;
         long endTime = this.getTimeSlots().getLast().getEnd();  // No reassignment, indicating that it has reached the rightmost
         for (TimeSlot timeSlot : timeSlots) {

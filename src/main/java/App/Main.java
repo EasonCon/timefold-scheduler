@@ -89,7 +89,7 @@ public class Main {
         mod1_2.setResourceRequirement(new ResourceRequirement("re2", resource2));
         mod2_1.setResourceRequirement(new ResourceRequirement("re3", resource1));
         mod2_2.setResourceRequirement(new ResourceRequirement("re4", resource2));
-        mod3_1.setResourceRequirement(new ResourceRequirement("re5", resource3));
+        mod3_1.setResourceRequirement(new ResourceRequirement("re5", resource2));
         mod3_2.setResourceRequirement(new ResourceRequirement("re6", resource3));
 
         mod1_1.setOperation(op1);
