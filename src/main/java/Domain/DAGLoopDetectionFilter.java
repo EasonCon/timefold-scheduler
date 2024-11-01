@@ -21,23 +21,24 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Change
     public boolean accept(ScoreDirector<Scheduler> scoreDirector, ChangeMove move) {
         // TODO:O(n^2) --> O(V·E)
         // TODO:Store degree of each node
+        // TODO:If new previous in craft path -> return false before DAG check.
         logger.info("Start Loop Detection Filter");
 
         // debug
-        System.out.println("当前链路情况:");
-        for (ResourceNode resourceNode : scoreDirector.getWorkingSolution().getResourceNodes()) {
-            System.out.print(resourceNode.getId());
-            if (resourceNode.getNext() != null) {
-                Allocation allocation = resourceNode.getNext();
-                while (allocation != null) {
-                    System.out.print(" -> " + allocation.getId() + ":" + allocation.getStartTime());
-                    allocation = allocation.getNext();
-                }
-            }
-            System.out.println();
-        }
-        System.out.println("当前Move:");
-        System.out.println(move.toString());
+//        System.out.println("当前链路情况:");
+//        for (ResourceNode resourceNode : scoreDirector.getWorkingSolution().getResourceNodes()) {
+//            System.out.print(resourceNode.getId());
+//            if (resourceNode.getNext() != null) {
+//                Allocation allocation = resourceNode.getNext();
+//                while (allocation != null) {
+//                    System.out.print(" -> " + allocation.getId() + ":" + allocation.getStartTime());
+//                    allocation = allocation.getNext();
+//                }
+//            }
+//            System.out.println();
+//        }
+//        System.out.println("当前Move:");
+//        System.out.println(move.toString());
         // debug
 
         Allocation currentAllocation = (Allocation) move.getEntity();

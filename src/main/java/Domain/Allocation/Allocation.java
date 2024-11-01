@@ -40,7 +40,7 @@ public class Allocation extends AllocationOrResource {
     @AnchorShadowVariable(sourceVariableName = "previous")
     private ResourceNode resourceNode;
 
-//    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
+    @ShadowVariable(variableListenerClass = StartTimeListener.class, sourceVariableName = "previous")
     private Long startTime;
     private Long endTime;
 
@@ -73,7 +73,7 @@ public class Allocation extends AllocationOrResource {
                 }
             }
         }
-        allocations.addAll(resourceList);
+        allocations.addAll(resourceList);  // First Fit can't trigger the DAG detection.
         return allocations;
     }
 
