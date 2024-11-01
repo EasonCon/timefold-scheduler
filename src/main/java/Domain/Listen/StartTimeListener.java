@@ -115,7 +115,7 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
         while (!deque.isEmpty()) {
             Allocation head = deque.removeFirst();
             boolean allocationIsReady = true;
-            if (head.getPredecessorsAllocations() != null) {
+            if (!head.getPredecessorsAllocations().isEmpty()) {
                 for (Allocation preAllocation : head.getPredecessorsAllocations()) {
                     if (!visited.contains(preAllocation)) {
                         allocationIsReady = false;

@@ -33,6 +33,7 @@
 <!--        </localSearch>-->
 
     <localSearch>
+        <localSearchType>TABU_SEARCH</localSearchType>
         <changeMoveSelector>
             <filterClass>Domain.DAGLoopDetectionFilter</filterClass>
         </changeMoveSelector>

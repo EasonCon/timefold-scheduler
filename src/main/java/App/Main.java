@@ -23,7 +23,7 @@ public class Main {
         SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
         Solver<Scheduler> solver = solverFactory.buildSolver();
         Scheduler solution = solver.solve(problem);
-        print(solution);
+//        print(solution);
     }
 
     public static void print(Scheduler solution) {
