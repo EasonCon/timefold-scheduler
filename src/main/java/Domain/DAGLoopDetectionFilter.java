@@ -4,8 +4,6 @@ import Domain.Allocation.Allocation;
 import DataStruct.ResourceNode;
 import Domain.Allocation.AllocationOrResource;
 import ai.timefold.solver.core.api.score.director.ScoreDirector;
-import ai.timefold.solver.core.impl.heuristic.move.Move;
-
 import ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionFilter;
 import ai.timefold.solver.core.impl.heuristic.selector.move.generic.ChangeMove;
 import org.slf4j.Logger;
@@ -22,7 +20,7 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Change
         // TODO:O(n^2) --> O(V·E)
         // TODO:Store degree of each node
         // TODO:If new previous in craft path -> return false before DAG check.
-        logger.info("Start Loop Detection Filter");
+        logger.debug("Start Loop Detection Filter");
 
         // debug
 //        System.out.println("当前链路情况:");
@@ -79,11 +77,11 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Change
         int currentAllocationIndex = allocationList.indexOf(currentAllocation);
         if (currentAllocation.getNext() != null) {
             int nextAllocationIndex = allocationList.indexOf(currentAllocation.getNext());
-            this.setAdjMatrix(currentAllocation,currentAllocation.getNext(),adjMatrix,allocationList);
+            this.setAdjMatrix(currentAllocation, currentAllocation.getNext(), adjMatrix, allocationList);
             if (currentAllocation.getPrevious() instanceof Allocation allocationPrevious) {
                 int previousAllocationIndex = allocationList.indexOf(allocationPrevious);
 //                adjMatrix[previousAllocationIndex][currentAllocationIndex] = 0;
-                this.setAdjMatrix(allocationPrevious,currentAllocation,adjMatrix,allocationList);
+                this.setAdjMatrix(allocationPrevious, currentAllocation, adjMatrix, allocationList);
                 adjMatrix[previousAllocationIndex][nextAllocationIndex] = 1;
             }
         }
@@ -95,7 +93,7 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Change
             if (targetPrevious.getNext() != null) {
                 int nextAllocationIndex = allocationList.indexOf(targetPrevious.getNext());
 //                adjMatrix[targetAllocationIndex][nextAllocationIndex] = 0;
-                this.setAdjMatrix((Allocation) targetPrevious,targetPrevious.getNext(),adjMatrix,allocationList);
+                this.setAdjMatrix((Allocation) targetPrevious, targetPrevious.getNext(), adjMatrix, allocationList);
                 adjMatrix[currentAllocationIndex][nextAllocationIndex] = 1;
             }
         } else {
@@ -133,25 +131,25 @@ public class DAGLoopDetectionFilter implements SelectionFilter<Scheduler, Change
                         degree++;
                     }
                 }
-                if (degree == 0 && !visited.contains(allocationList.get(i))) {
+                if (degree == 0 && !visited.contains(allocationList.get(i)) && !deque.contains(allocationList.get(i))) {
                     deque.addFirst(allocationList.get(i));
                 }
             }
         }
         if (visited.size() < allocationList.size()) {
-            logger.info("Loop detected in DAG");
+            logger.debug("Loop detected in DAG");
             return false;
         } else if (visited.size() > allocationList.size()) {
             throw new RuntimeException("Visited size is larger than allocationList size");
         } else {
-            logger.info("DAGLoopDetectionFilter accept");
+            logger.debug("DAGLoopDetectionFilter accept");
             return true;
         }
     }
 
-    protected void setAdjMatrix(Allocation previous, Allocation next, int [][] adjMatrix,List<Allocation> allocationList) {
-        for(Allocation allocation:previous.getSuccessorsAllocations()){
-            if(Objects.equals(allocation.getId(), next.getId())){
+    protected void setAdjMatrix(Allocation previous, Allocation next, int[][] adjMatrix, List<Allocation> allocationList) {
+        for (Allocation allocation : previous.getSuccessorsAllocations()) {
+            if (Objects.equals(allocation.getId(), next.getId())) {
                 return;
             }
         }

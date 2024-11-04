@@ -10,24 +10,22 @@ import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.domain.variable.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
 @PlanningEntity
 public class Allocation extends AllocationOrResource {
+    @NotNull(message = "Allocation must have an operation")
     private Operation operation;
     private List<Allocation> predecessorsAllocations = new ArrayList<>();  // In craft path
     private List<Allocation> successorsAllocations = new ArrayList<>();
     private List<ResourceNode> allResources = new ArrayList<>();
     private List<AllocationOrResource> possiblePreviousAllocation;
-    private List<Allocation> allocations;
 
     // variables
     @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"previousRange"})
@@ -61,7 +59,7 @@ public class Allocation extends AllocationOrResource {
                     resourceList.add(resourceNode);
             }
         }
-        List<AllocationOrResource> allocations = new ArrayList<>();
+        List<Allocation> allocations = new ArrayList<>();
         for (ResourceNode resourceNode : resourceList) {
             if (resourceNode.getNext() != null) {
                 Allocation cursor = resourceNode.getNext();
@@ -73,8 +71,11 @@ public class Allocation extends AllocationOrResource {
                 }
             }
         }
-        allocations.addAll(resourceList);  // First Fit can't trigger the DAG detection.
-        return allocations;
+        allocations.sort(Comparator.nullsLast(Comparator.comparingLong(Allocation::getStartTime)));
+        List<AllocationOrResource> allocationsOrResources = new ArrayList<>();
+        allocationsOrResources.addAll(allocations);
+        allocationsOrResources.addAll(resourceList);
+        return allocationsOrResources;
     }
 
     public Long getEndTime() {

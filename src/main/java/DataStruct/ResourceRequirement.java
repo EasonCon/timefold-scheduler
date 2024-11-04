@@ -1,5 +1,6 @@
 package DataStruct;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class ResourceRequirement extends Labeled {
 
+    @NotNull
     private ResourceNode resourceNode;
 
     public ResourceRequirement() {

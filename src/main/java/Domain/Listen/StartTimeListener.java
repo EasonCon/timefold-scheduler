@@ -49,13 +49,9 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
     }
 
     public void updateOneAllocationStartTime(ScoreDirector<Scheduler> scoreDirector, Allocation allocation) {
-        // Before all allocations get its position,all pointers of previous are null.
         if (allocation.getPrevious() == null) {
             return;
         }
-//        if(allocation.getId() == "allocation1"){
-//            System.out.println("allocation1");
-//        }
         Long startTimeFromResource = allocation.TimeConstraintFromResource();
         Long startTimeFromPredecessors = allocation.TimeConstraintFromCraftPath();
 
@@ -114,46 +110,29 @@ public class StartTimeListener implements VariableListener<Scheduler, Allocation
 
         while (!deque.isEmpty()) {
             Allocation head = deque.removeFirst();
-            boolean allocationIsReady = true;
-            if (!head.getPredecessorsAllocations().isEmpty()) {
-                for (Allocation preAllocation : head.getPredecessorsAllocations()) {
-                    if (!visited.contains(preAllocation)) {
-                        allocationIsReady = false;
-                        break;
-                    }
-                }
+            visited.add(head);
+            for (int i = 0; i < allocationList.size(); i++) {
+                adjMatrix[allocationList.indexOf(head)][i] = 0;
             }
-            if (allocationIsReady) {
-                //
-                if (head.getStartTime() == null || allocation.getStartTime() == null) {
-                    continue;
-                }
-                if (head.getStartTime() > allocation.getStartTime()) {
-                    this.updateOneAllocationStartTime(scoreDirector, head);
-                }
-                visited.add(head);
-                for (int i = 0; i < allocationList.size(); i++) {
-                    adjMatrix[allocationList.indexOf(head)][i] = 0;
-                }
-                // Research 0 degree allocation
-                for (int i = 0; i < allocationList.size(); i++) {
-                    int degree = 0;
-                    for (int j = 0; j < allocationList.size(); j++) {
-                        if (adjMatrix[j][i] == 1) {
-                            degree++;
-                        }
-                    }
-                    if (degree == 0 && !visited.contains(allocationList.get(i))) {
-                        deque.addFirst(allocationList.get(i));
-                    }
-                }
+            if (head.getStartTime() == null || allocation.getStartTime() == null) {
+                continue;
+            }
+            if (head.getStartTime() > allocation.getStartTime()) {
+                this.updateOneAllocationStartTime(scoreDirector, head);
+            }
 
-            } else {
-                deque.addLast(head);
+            // Research 0 degree allocation
+            for (int i = 0; i < allocationList.size(); i++) {
+                int degree = 0;
+                for (int j = 0; j < allocationList.size(); j++) {
+                    if (adjMatrix[j][i] == 1) {
+                        degree++;
+                    }
+                }
+                if (degree == 0 && !visited.contains(allocationList.get(i))) {
+                    deque.addFirst(allocationList.get(i));
+                }
             }
         }
-    }
-
-    protected void notifyWorkingSolutionChanged(Allocation allocation) {
     }
 }

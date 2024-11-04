@@ -1,41 +1,64 @@
 package DataStruct;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 public class Operation extends Labeled {
-    // multiple predecessors are allowed but only one successor, which means that the craft is a tree.
     private String name;
-    private int order;
+    @NotNull(message = "Parent task can't be null")
     private Task parentTask;
+
+    private Long batchSize;
+    private Integer order;
+
+    @NotNull(message = "Operation Quantity can't be null")
     private long quantity;
+
     private List<ExecutionMode> executionModes = new ArrayList<>();
     private List<Operation> previousOperations = new ArrayList<>();
     private List<Operation> nextOperations = new ArrayList<>();
     private ProductionMethod productionMethod;
-    private long resourceOccupiedPostTime;
-    private long NonResourceOccupiedPostTime;
-    private OperationStartRelationShip operationStartRelationShip;
-    private boolean isCriticalPath;
-    private Long batchSize;
+    private int resourceOccupiedPostTime = 0;
+    private int NonResourceOccupiedPostTime = 0;
+    private int resourceOccupiedPreparation = 0;
+    private int NonResourceOccupiedPreparation = 0;
+    private OperationStartRelationShip operationStartRelationShip = OperationStartRelationShip.ES;
+    private boolean isCriticalPath = true;
 
     // keep stable scheduling result
+    @NotNull(message = "Operation IsLocked can't be null")
     private boolean isLocked;
     private Long plannedStartTime;
     private Long plannedEndTime;
     private ResourceNode plannedResource;
 
-    // for judging position of operation
+    // To judge the position of operation
+    @NotNull
     private boolean isFirst;
+    @NotNull
     private boolean isLast;
 
 
     public Operation() {
         super(null);
+    }
+
+    protected boolean OperationDataCheck() {
+        Set<String> resourceIDs = new HashSet<>();
+        for (ExecutionMode executionMode : this.getExecutionModes()) {
+            if (executionMode.getResourceRequirement().getResourceNode().getTimeSlots().isEmpty()) {
+                return false;
+            }
+            resourceIDs.add(executionMode.getResourceRequirement().getResourceNode().getId());
+        }
+        return resourceIDs.size() == this.getExecutionModes().size();
     }
 }

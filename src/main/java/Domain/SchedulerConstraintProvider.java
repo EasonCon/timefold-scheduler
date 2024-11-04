@@ -13,7 +13,8 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[]{
 //                fixedPenalize(constraintFactory
-                ensureValidResourceNode(constraintFactory)
+                ensureValidResourceNode(constraintFactory),
+                TaskDelayPenalize(constraintFactory)
         };
     }
 
@@ -30,5 +31,12 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
                         .noneMatch(exec -> exec.getResourceRequirement().getResourceNode().getId().equals(allocation.getResourceNode().getId())))
                 .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Invalid resource node");
+    }
+
+    protected Constraint TaskDelayPenalize(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Allocation.class)
+                .filter(allocation -> allocation.getOperation().isLast() && allocation.getEndTime() > 20)
+                .penalize(HardMediumSoftScore.ONE_HARD)
+                .asConstraint("Allocation delay");
     }
 }

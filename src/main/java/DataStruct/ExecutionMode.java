@@ -1,16 +1,22 @@
 package DataStruct;
 
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class ExecutionMode extends Labeled {
+    @NotNull
     private Operation operation;
+    @NotNull
     private ResourceRequirement resourceRequirement;
-    private int priority;
+    private Integer priority;
+
+    @NotNull
     private float beat;
+    @NotNull
     private float quantityPerBeat;
 
 

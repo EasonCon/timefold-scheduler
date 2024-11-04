@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public abstract class Labeled {
-    @PlanningId
     private String id;
 
     public Labeled(String id) {

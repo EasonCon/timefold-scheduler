@@ -23,6 +23,11 @@ dependencies {
     implementation("ai.timefold.solver:timefold-solver-core")
     testImplementation("ai.timefold.solver:timefold-solver-test")
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
+
+
+    implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("org.glassfish:jakarta.el:4.0.2")
 }
 
 tasks.test {
