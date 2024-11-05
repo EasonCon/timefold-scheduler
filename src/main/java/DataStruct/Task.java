@@ -24,6 +24,7 @@ public class Task extends Labeled {
     private Long earliestStartTime;
     private Long latestStartTime;
     private Long materialSetTime;
+    private String groupSchedulingIndicator;
 
 
     public Task() {

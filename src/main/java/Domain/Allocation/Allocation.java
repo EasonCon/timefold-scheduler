@@ -4,8 +4,10 @@ import DataStruct.ExecutionMode;
 import DataStruct.Operation;
 import DataStruct.OperationStartRelationShip;
 import DataStruct.ResourceNode;
+import Domain.GroupSchedulingFilter;
 import Domain.Listen.StartTimeListener;
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.entity.PlanningPin;
 import ai.timefold.solver.core.api.domain.valuerange.CountableValueRange;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeFactory;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
@@ -18,7 +20,7 @@ import java.util.*;
 
 @Getter
 @Setter
-@PlanningEntity
+@PlanningEntity(pinningFilter = GroupSchedulingFilter.class)
 public class Allocation extends AllocationOrResource {
     @NotNull(message = "Allocation must have an operation")
     private Operation operation;
@@ -118,6 +120,11 @@ public class Allocation extends AllocationOrResource {
             }
             return predecessorsTimeConstraints.stream().max(Long::compare).orElse(null);
         }
+    }
+
+    @PlanningPin
+    public boolean isPinned(){
+        return false;
     }
 
     public Allocation() {

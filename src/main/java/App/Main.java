@@ -84,6 +84,10 @@ public class Main {
         op2.setOperationStartRelationShip(OperationStartRelationShip.ES);
         op3.setOperationStartRelationShip(OperationStartRelationShip.ES);
         op4.setOperationStartRelationShip(OperationStartRelationShip.ES);
+        op1.setParentTask(task1);
+        op2.setParentTask(task1);
+        op3.setParentTask(task1);
+        op4.setParentTask(task1);
 
         op4.setLast(true);
 
