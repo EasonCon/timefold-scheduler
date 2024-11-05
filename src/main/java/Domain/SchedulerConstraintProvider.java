@@ -1,31 +1,25 @@
 package Domain;
 
 import Domain.Allocation.Allocation;
-import DataStruct.ResourceNode;
 import ai.timefold.solver.core.api.score.buildin.hardmediumsoft.HardMediumSoftScore;
 import ai.timefold.solver.core.api.score.stream.Constraint;
-import ai.timefold.solver.core.api.score.stream.ConstraintCollectors;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
-import ai.timefold.solver.core.api.score.stream.Joiners;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.score.stream.ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[]{
-//                fixedPenalize(constraintFactory
-                ensureValidResourceNode(constraintFactory),
-                TaskDelayPenalize(constraintFactory)
+                validResourceNodeHardConstraint(constraintFactory),
+                TaskDelayPenalizeMediumConstraint(constraintFactory),
+                NonvolatilePenalizeMediumConstraint(constraintFactory),
+                CraftConstraintInOneResource(constraintFactory)
         };
     }
 
-
-    protected Constraint fixedPenalize(ConstraintFactory constraintFactory) {
-        return constraintFactory.forEach(Allocation.class)
-                .penalize(HardMediumSoftScore.ofSoft((int) (Math.random() * 100)))
-                .asConstraint("Fixed penalty for each allocation");
-    }
-
-    protected Constraint ensureValidResourceNode(ConstraintFactory constraintFactory) {
+    protected Constraint validResourceNodeHardConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Allocation.class)
                 .filter(allocation -> allocation.getOperation().getExecutionModes().stream()
                         .noneMatch(exec -> exec.getResourceRequirement().getResourceNode().getId().equals(allocation.getResourceNode().getId())))
@@ -33,10 +27,34 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
                 .asConstraint("Invalid resource node");
     }
 
-    protected Constraint TaskDelayPenalize(ConstraintFactory constraintFactory) {
+    protected Constraint TaskDelayPenalizeMediumConstraint(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Allocation.class)
                 .filter(allocation -> allocation.getOperation().isLast() && allocation.getEndTime() > 20)
                 .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Allocation delay");
+    }
+
+    protected Constraint NonvolatilePenalizeMediumConstraint(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Allocation.class)
+                .filter(allocation -> allocation.getOperation().getPlannedResource() != null
+                        && !allocation.getResourceNode().getId().equals(allocation.getOperation().getPlannedResource().getId()))
+                .penalize(HardMediumSoftScore.ONE_MEDIUM)
+                .asConstraint("Nonvolatile penalize");
+    }
+
+    protected Constraint CraftConstraintInOneResource(ConstraintFactory constraintFactory) {
+        return constraintFactory.forEach(Allocation.class)
+                .filter(allocation -> {
+                    Set<Allocation> predecessorsAllocations = new HashSet<>(allocation.getPredecessorsAllocations());                    Allocation current = allocation.getNext();
+                    while (current != null) {
+                        if (predecessorsAllocations.contains(current)) {
+                            return true;
+                        }
+                        current = current.getNext();
+                    }
+                    return false;
+                })
+                .penalize(HardMediumSoftScore.ONE_HARD)
+                .asConstraint("Circular dependency hard constraint");
     }
 }

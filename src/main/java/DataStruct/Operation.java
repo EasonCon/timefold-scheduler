@@ -33,18 +33,23 @@ public class Operation extends Labeled {
     private OperationStartRelationShip operationStartRelationShip = OperationStartRelationShip.ES;
     private boolean isCriticalPath = true;
 
-    // keep stable scheduling result
+    // Scheduling result from last time
     @NotNull(message = "Operation IsLocked can't be null")
     private boolean isLocked;
     private Long plannedStartTime;
     private Long plannedEndTime;
     private ResourceNode plannedResource;
 
+    @NotNull(message = "Operation IsFrozen can't be null")
+    private boolean isFrozen;
+    private Object frozenPrevious;  // ResourceNode or Operation
+
     // To judge the position of operation
     @NotNull
     private boolean isFirst;
     @NotNull
     private boolean isLast;
+
 
 
     public Operation() {
