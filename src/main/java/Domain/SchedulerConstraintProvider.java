@@ -42,6 +42,7 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
                 .asConstraint("Nonvolatile penalize");
     }
 
+    // TODO:这个约束还存在问题，不能满足有向图的约束，但是可以保证资源链路上不存在冲突
     protected Constraint CraftConstraintInOneResource(ConstraintFactory constraintFactory) {
         return constraintFactory.forEach(Allocation.class)
                 .filter(allocation -> {
@@ -56,5 +57,9 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
                 })
                 .penalize(HardMediumSoftScore.ONE_HARD)
                 .asConstraint("Circular dependency hard constraint");
+    }
+
+    protected  Constraint LockedJobHardConstraint(ConstraintFactory constraintFactory){
+
     }
 }

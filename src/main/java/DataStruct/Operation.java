@@ -41,7 +41,7 @@ public class Operation extends Labeled {
     private ResourceNode plannedResource;
 
     @NotNull(message = "Operation IsFrozen can't be null")
-    private boolean isFrozen;
+    private boolean isFrozen;  // isFrozen and frozenPrevious must exist together
     private Object frozenPrevious;  // ResourceNode or Operation
 
     // To judge the position of operation

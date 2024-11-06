@@ -2,12 +2,12 @@ package App;
 
 import DataStruct.*;
 import Domain.Allocation.Allocation;
+import Domain.Allocation.AllocationOrResource;
 import Domain.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Preprocessing {
     private static final Logger logger = LoggerFactory.getLogger(Preprocessing.class);
@@ -102,6 +102,13 @@ public class Preprocessing {
         op4.getPreviousOperations().add(op3);
         task1.setCraftPath(new ArrayList<>(List.of(op1, op2, op3, op4)));
         logger.info("Data loaded end");
+        // frozen
+        op1.setFrozen(true);
+        op1.setFrozenPrevious(resource1);
+
+        op2.setFrozen(true);
+        op2.setFrozenPrevious(op1);
+
         // 构建solution
         Allocation allocation1 = new Allocation();
         allocation1.setId("allocation1");
@@ -120,10 +127,17 @@ public class Preprocessing {
         allocation3.setPredecessorsAllocations(new ArrayList<>(List.of(allocation1, allocation2)));
         allocation3.setSuccessorsAllocations(new ArrayList<>(List.of(allocation4)));
         allocation4.setPredecessorsAllocations(new ArrayList<>(List.of(allocation3)));
+
         allocation1.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
         allocation2.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
         allocation3.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
         allocation4.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
+
+        List<Allocation> allocations = new ArrayList<>(List.of(allocation1, allocation2, allocation3, allocation4));
+        for(Allocation allocation:allocations){
+            allocation.setAllAllocations(allocations);
+        }
+
         Scheduler problem = new Scheduler();
         problem.setId("sch1");
         problem.setAllocations(new ArrayList<>(List.of(allocation1, allocation2, allocation3, allocation4)));
@@ -144,5 +158,19 @@ public class Preprocessing {
             System.out.println();
         }
 
+    }
+
+    public static Scheduler BuildInitSolution(Scheduler scheduler) {
+        HashMap<String, Allocation> allocationSet = new HashMap<>();
+        for (Task task : scheduler.getTasks()) {
+            for (Operation operation : task.getCraftPath()) {
+                for (Allocation allocation : scheduler.getAllocations()) {
+                    if (Objects.equals(allocation.getOperation().getId(), operation.getId())) {
+                        allocationSet.put(operation.getId(), allocation);
+                    }
+                }
+            }
+        }
+        return scheduler;
     }
 }

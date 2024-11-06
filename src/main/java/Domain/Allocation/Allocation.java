@@ -17,16 +17,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@PlanningEntity(pinningFilter = GroupSchedulingFilter.class)
+@PlanningEntity
 public class Allocation extends AllocationOrResource {
     @NotNull(message = "Allocation must have an operation")
     private Operation operation;
     private List<Allocation> predecessorsAllocations = new ArrayList<>();  // In craft path
     private List<Allocation> successorsAllocations = new ArrayList<>();
     private List<ResourceNode> allResources = new ArrayList<>();
+    private List<Allocation> allAllocations = new ArrayList<>();
     private List<AllocationOrResource> possiblePreviousAllocation;
 
     // variables
@@ -53,6 +55,20 @@ public class Allocation extends AllocationOrResource {
 
     @ValueRangeProvider(id = "previousRange")
     public List<AllocationOrResource> getPossiblePreviousAllocation() {
+        // Processing of frozen processes
+        if (this.getOperation().isFrozen()) {
+            if (this.getOperation().getFrozenPrevious() instanceof ResourceNode frozenPrevious) {
+                return allResources.stream()
+                        .filter(resourceNode -> resourceNode.getId().equals(frozenPrevious.getId()))
+                        .collect(Collectors.toList());
+            } else if (this.getOperation().getFrozenPrevious() instanceof Operation frozenPrevious) {
+                return allAllocations.stream()
+                        .filter(allocation -> allocation.getOperation().getId().equals(frozenPrevious.getId()))
+                        .collect(Collectors.toList());
+            } else {
+                throw new RuntimeException("FrozenPrevious is not a ResourceNode or Operation");
+            }
+        }
         List<ResourceNode> resourceList = new ArrayList<>();
         for (ExecutionMode executionMode : this.getOperation().getExecutionModes()) {
             String id = executionMode.getResourceRequirement().getResourceNode().getId();
@@ -81,7 +97,15 @@ public class Allocation extends AllocationOrResource {
     }
 
     public Long getEndTime() {
-        ExecutionMode selectedExecutionMode = this.getOperation().getExecutionModes().stream().filter(executionMode -> Objects.equals(executionMode.getResourceRequirement().getResourceNode().getId(), this.getResourceNode().getId())).findFirst().get();
+        ExecutionMode selectedExecutionMode = this.getOperation()
+                .getExecutionModes()
+                .stream()
+                .filter(executionMode -> Objects.equals(
+                        executionMode.getResourceRequirement().getResourceNode().getId(),
+                        this.getResourceNode().getId()
+                ))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No matching ExecutionMode found for ResourceNode ID: " + this.getResourceNode().getId()));
         return this.getResourceNode().getEndTime(this.getStartTime(), (long) (this.getOperation().getQuantity() * selectedExecutionMode.getBeat() / selectedExecutionMode.getQuantityPerBeat()));
     }
 
@@ -110,8 +134,7 @@ public class Allocation extends AllocationOrResource {
                 if (this.getOperation().getOperationStartRelationShip().equals(OperationStartRelationShip.ES)) {
                     if (predecessorEndTime != null) {
                         predecessorsTimeConstraints.add(predecessor.getEndTime() + predecessor.getOperation().getNonResourceOccupiedPostTime());
-                    }
-                    else{
+                    } else {
                         return null;
                     }
                 } else {
@@ -123,7 +146,7 @@ public class Allocation extends AllocationOrResource {
     }
 
     @PlanningPin
-    public boolean isPinned(){
+    public boolean isPinned() {
         return false;
     }
 
