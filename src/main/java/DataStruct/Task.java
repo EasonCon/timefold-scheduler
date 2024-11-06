@@ -44,6 +44,14 @@ public class Task extends Labeled {
             if (operation.isFirst()) {
                 firstOperation.add(operation);
             }
+            if (!operation.OperationDataCheck(allResources)) {
+                logger.warn("Task {} has an operation {} with invalid data", this.getId(), operation.getId());
+                return false;
+            }
+            if (operation.getFrozenPrevious() instanceof ResourceNode resourceNode && !allResources.contains(resourceNode)) {
+                logger.warn("Task {} has an frozen operation {},which planned resource is not available", this.getId(), operation.getId());
+                return false;
+            }
         }
         if (firstOperation.isEmpty()) {
             logger.warn("Task {} has no first operation", this.getId());

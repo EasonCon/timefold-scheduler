@@ -16,6 +16,7 @@ public class Main {
         logger.info("Starting the solver application");
         Scheduler problem = Preprocessing.generateDemoData();
         Preprocessing.DataCheck(problem);
+        Preprocessing.calculateFrozenTask(problem);
         Preprocessing.BuildAllocations(problem);
         SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
         Solver<Scheduler> solver = solverFactory.buildSolver();

@@ -107,11 +107,11 @@ public class Preprocessing {
         task1.setCraftPath(new ArrayList<>(List.of(op1, op2, op3, op4)));
 
         // frozen
-        op1.setFrozen(true);
-        op1.setFrozenPrevious(resource1);
-
-        op2.setFrozen(true);
-        op2.setFrozenPrevious(op1);
+//        op1.setFrozen(true);
+//        op1.setFrozenPrevious(resource2);
+//
+//        op2.setFrozen(true);
+//        op2.setFrozenPrevious(op1);
 
         // Build void problem
         Scheduler problem = new Scheduler();
@@ -124,7 +124,7 @@ public class Preprocessing {
 
     public static void print(Scheduler solution) {
         for (ResourceNode resourceNode : solution.getResourceNodes()) {
-            System.out.print("资源结果:" + resourceNode.getId());
+            System.out.print("Resource Result:" + resourceNode.getId());
             if (resourceNode.getNext() != null) {
                 Allocation allocation = resourceNode.getNext();
                 while (allocation != null) {
@@ -162,7 +162,11 @@ public class Preprocessing {
 
     }
 
-    public static Scheduler calculateFrozenTask(Scheduler scheduler) {
+    public static void calculateFrozenTask(Scheduler scheduler) {
+        if (scheduler.getFrozenSeconds() == 0) {
+            logger.warn("No freeze period is set");
+            return;
+        }
         HashMap<ResourceNode, List<Operation>> frozenMap = new HashMap<>();
         for (Task task : scheduler.getTasks()) {
             for (Operation operation : task.getCraftPath()) {
@@ -174,8 +178,20 @@ public class Preprocessing {
                 }
             }
         }
-
-        return scheduler;
+        for (List<Operation> operations : frozenMap.values()) {
+            operations.sort(Comparator.comparing(Operation::getPlannedStartTime));
+        }
+        // TODO:DAG check
+        for (Map.Entry<ResourceNode, List<Operation>> entry : frozenMap.entrySet()) {
+            for (int i = 0; i < entry.getValue().size(); i++) {
+                entry.getValue().get(i).setFrozen(true);
+                if (i == 0) {
+                    entry.getValue().get(i).setFrozenPrevious(entry.getKey());
+                } else {
+                    entry.getValue().get(i).setFrozenPrevious(entry.getValue().get(i - 1));
+                }
+            }
+        }
     }
 
     public static void BuildAllocations(Scheduler problem) {
