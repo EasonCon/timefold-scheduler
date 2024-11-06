@@ -2,8 +2,8 @@ package App;
 
 import DataStruct.*;
 import Domain.Allocation.Allocation;
-import Domain.Allocation.AllocationOrResource;
 import Domain.Scheduler;
+import Utils.RandomStringGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +42,10 @@ public class Preprocessing {
         op2.setId("op2");
         op3.setId("op3");
         op4.setId("op4");
+
+        op1.setFirst(true);
+        op2.setFirst(true);
+
         op1.setQuantity(2);
         op2.setQuantity(2);
         op3.setQuantity(2);
@@ -101,7 +105,7 @@ public class Preprocessing {
         op3.getNextOperations().add(op4);
         op4.getPreviousOperations().add(op3);
         task1.setCraftPath(new ArrayList<>(List.of(op1, op2, op3, op4)));
-        logger.info("Data loaded end");
+
         // frozen
         op1.setFrozen(true);
         op1.setFrozenPrevious(resource1);
@@ -109,39 +113,12 @@ public class Preprocessing {
         op2.setFrozen(true);
         op2.setFrozenPrevious(op1);
 
-        // 构建solution
-        Allocation allocation1 = new Allocation();
-        allocation1.setId("allocation1");
-        allocation1.setOperation(op1);
-        Allocation allocation2 = new Allocation();
-        allocation2.setId("allocation2");
-        allocation2.setOperation(op2);
-        Allocation allocation3 = new Allocation();
-        allocation3.setId("allocation3");
-        allocation3.setOperation(op3);
-        Allocation allocation4 = new Allocation();
-        allocation4.setId("allocation4");
-        allocation4.setOperation(op4);
-        allocation1.setSuccessorsAllocations(new ArrayList<>(List.of(allocation3)));
-        allocation2.setSuccessorsAllocations(new ArrayList<>(List.of(allocation3)));
-        allocation3.setPredecessorsAllocations(new ArrayList<>(List.of(allocation1, allocation2)));
-        allocation3.setSuccessorsAllocations(new ArrayList<>(List.of(allocation4)));
-        allocation4.setPredecessorsAllocations(new ArrayList<>(List.of(allocation3)));
-
-        allocation1.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
-        allocation2.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
-        allocation3.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
-        allocation4.setAllResources(new ArrayList<>(List.of(resource1, resource2, resource3)));
-
-        List<Allocation> allocations = new ArrayList<>(List.of(allocation1, allocation2, allocation3, allocation4));
-        for(Allocation allocation:allocations){
-            allocation.setAllAllocations(allocations);
-        }
-
+        // Build void problem
         Scheduler problem = new Scheduler();
-        problem.setId("sch1");
-        problem.setAllocations(new ArrayList<>(List.of(allocation1, allocation2, allocation3, allocation4)));
+        problem.setId("solver");
+        problem.setTasks(new ArrayList<>(List.of(task1)));
         problem.setResourceNodes(new ArrayList<>(List.of(resource1, resource2, resource3)));
+        logger.info("Data loaded end");
         return problem;
     }
 
@@ -151,7 +128,7 @@ public class Preprocessing {
             if (resourceNode.getNext() != null) {
                 Allocation allocation = resourceNode.getNext();
                 while (allocation != null) {
-                    System.out.print(" -> " + allocation.getId() + ":" + "[" + allocation.getStartTime() + "," + allocation.getEndTime() + "]");
+                    System.out.print(" -> " + allocation.getOperation().getId() + ":" + "[" + allocation.getStartTime() + "," + allocation.getEndTime() + "]");
                     allocation = allocation.getNext();
                 }
             }
@@ -160,17 +137,78 @@ public class Preprocessing {
 
     }
 
-    public static Scheduler BuildInitSolution(Scheduler scheduler) {
-        HashMap<String, Allocation> allocationSet = new HashMap<>();
+    public static void DataCheck(Scheduler scheduler) {
+        // Resource check
+        List<ResourceNode> resourceNodes = scheduler.getResourceNodes();
+        List<ResourceNode> toRemoveResources = new ArrayList<>();
+        for (ResourceNode resource : resourceNodes) {
+            if (resource.getTimeSlots().isEmpty()) {
+                logger.warn("Resource {} has no time slots", resource.getId());
+                toRemoveResources.add(resource);
+            }
+        }
+        resourceNodes.removeAll(toRemoveResources);
+
+        // Task check
+        List<Task> toRemoveTasks = new ArrayList<>();
+        for (Task task : scheduler.getTasks()) {
+            if (!task.TaskDataCheck(resourceNodes)) {
+                toRemoveTasks.add(task);
+            } else {
+                logger.info("Task {} pass data check", task.getId());
+            }
+        }
+        scheduler.getTasks().removeAll(toRemoveTasks);
+
+    }
+
+    public static Scheduler calculateFrozenTask(Scheduler scheduler) {
+        HashMap<ResourceNode, List<Operation>> frozenMap = new HashMap<>();
         for (Task task : scheduler.getTasks()) {
             for (Operation operation : task.getCraftPath()) {
-                for (Allocation allocation : scheduler.getAllocations()) {
-                    if (Objects.equals(allocation.getOperation().getId(), operation.getId())) {
-                        allocationSet.put(operation.getId(), allocation);
+                if (operation.getPlannedResource() != null &&
+                        operation.getPlannedStartTime() != null &&
+                        operation.getPlannedStartTime() <= scheduler.getStartSchedulingTime() + scheduler.getFrozenSeconds()) {
+
+                    frozenMap.computeIfAbsent(operation.getPlannedResource(), k -> new ArrayList<>()).add(operation);
+                }
+            }
+        }
+
+        return scheduler;
+    }
+
+    public static void BuildAllocations(Scheduler problem) {
+        List<Allocation> allocations = new ArrayList<>();
+        HashMap<Operation, Allocation> operationAllocationHashMap = new HashMap<>();
+
+        for (Task task : problem.getTasks()) {
+            for (Operation operation : task.getCraftPath()) {
+                Allocation allocation = new Allocation();
+                allocation.setId(RandomStringGenerator.generateRandomString(16));
+                allocation.setOperation(operation);
+                allocation.setAllResources(problem.getResourceNodes());
+                allocations.add(allocation);
+                operationAllocationHashMap.put(operation, allocation);
+            }
+        }
+        for (Task task : problem.getTasks()) {
+            for (Operation currentOperation : task.getCraftPath()) {
+                if (!currentOperation.getPreviousOperations().isEmpty()) {
+                    for (Operation preOperation : currentOperation.getPreviousOperations()) {
+                        operationAllocationHashMap.get(currentOperation).getPredecessorsAllocations().add(operationAllocationHashMap.get(preOperation));
+                    }
+                }
+                if (!currentOperation.getNextOperations().isEmpty()) {
+                    for (Operation nextOperation : currentOperation.getNextOperations()) {
+                        operationAllocationHashMap.get(currentOperation).getSuccessorsAllocations().add(operationAllocationHashMap.get(nextOperation));
                     }
                 }
             }
         }
-        return scheduler;
+        problem.setAllocations(allocations);
+        for (Allocation allocation : allocations) {
+            allocation.setAllAllocations(allocations);
+        }
     }
 }

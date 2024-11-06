@@ -31,20 +31,14 @@ public class Scheduler extends AbstractPerishable {
     private HardMediumSoftScore hardMediumSoftScore;
     private List<Task> tasks;
 
+    private int startSchedulingTime = 0;
+    private int frozenSeconds = 0;
+
 
 
     public Scheduler() {
     }
 
-    public boolean dataCheck() {
-        /*
-         1.check the resource timeslots never null
-         2.check the execution mode is never null
-         3.no loop in craft path
-
-         */
-        return true;
-    }
 }
 
 

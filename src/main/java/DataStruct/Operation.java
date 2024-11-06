@@ -51,19 +51,22 @@ public class Operation extends Labeled {
     private boolean isLast;
 
 
-
     public Operation() {
         super(null);
     }
 
-    protected boolean OperationDataCheck() {
+    protected boolean OperationDataCheck(List<ResourceNode> allResources) {
+        // An error is returned only if the process cannot be produced
         Set<String> resourceIDs = new HashSet<>();
+        List<ExecutionMode> toRemoveExecutionModes = new ArrayList<>();
         for (ExecutionMode executionMode : this.getExecutionModes()) {
-            if (executionMode.getResourceRequirement().getResourceNode().getTimeSlots().isEmpty()) {
-                return false;
+            if (!allResources.contains(executionMode.getResourceRequirement().getResourceNode())) {
+                toRemoveExecutionModes.add(executionMode);
+            } else {
+                resourceIDs.add(executionMode.getResourceRequirement().getResourceNode().getId());
             }
-            resourceIDs.add(executionMode.getResourceRequirement().getResourceNode().getId());
         }
-        return resourceIDs.size() == this.getExecutionModes().size();
+        this.getExecutionModes().removeAll(toRemoveExecutionModes);
+        return !this.getExecutionModes().isEmpty();
     }
 }

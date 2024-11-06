@@ -59,7 +59,5 @@ public class SchedulerConstraintProvider implements ai.timefold.solver.core.api.
                 .asConstraint("Circular dependency hard constraint");
     }
 
-    protected  Constraint LockedJobHardConstraint(ConstraintFactory constraintFactory){
 
-    }
 }
