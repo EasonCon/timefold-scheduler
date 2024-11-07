@@ -1,0 +1,174 @@
+@startuml
+enum DataStruct.SupplyType {
++  MO
++  MRP
++  PLAN
++  PO
++  PR
++  SO
+}
+
+class Domain.Listen.BaseReNewResourceListener {
+}
+class Domain.AbstractPerishable {
+# String id
+}
+
+class Utils.RandomStringGenerator {
+- {static} String CHARACTERS
+- {static} SecureRandom RANDOM
+}
+
+class App.DataProcessing {
+- {static} Logger logger
+}
+
+abstract class DataStruct.Labeled {
+- String id
+}
+
+class Domain.Scheduler {
+- List<ResourceNode> resourceNodes
+- List<Allocation> allocations
+- HardMediumSoftScore hardMediumSoftScore
+- List<Task> tasks
+- int startSchedulingTime
+- int frozenSeconds
+}
+
+class DataStruct.TimeSlot {
+- String shiftID
+- long start
+- long end
+}
+
+enum DataStruct.TaskType {
++  PARENT
++  CHILD
+}
+
+class DataStruct.ResourceRequirement {
+- ResourceNode resourceNode
+}
+
+class Domain.GroupSchedulingFilter {
+}
+class DataStruct.Task {
+- {static} Logger logger
+- String materialId
+- String materialDescription
+- float quantity
+- List<Operation> craftPath
+- List<MasterDemand> masterDemands
+- SupplyType supplyType
+- Integer priority
+- Long earliestStartTime
+- Long latestStartTime
+- Long materialSetTime
+- String groupSchedulingIndicator
+}
+
+class DataStruct.MasterDemand {
+- Long requiredDate
+- Long deliveryDate
+- Long breachDate
+- Long promisedDate
+- Long prePromisedDate
+}
+
+class DataStruct.Operation {
+- String name
+- Task parentTask
+- Long batchSize
+- Integer order
+- long quantity
+- List<ExecutionMode> executionModes
+- List<Operation> previousOperations
+- List<Operation> nextOperations
+- ProductionMethod productionMethod
+- int resourceOccupiedPostTime
+- int NonResourceOccupiedPostTime
+- int resourceOccupiedPreparation
+- int NonResourceOccupiedPreparation
+- OperationStartRelationShip operationStartRelationShip
+- boolean isCriticalPath
+- boolean isLocked
+- Long plannedStartTime
+- Long plannedEndTime
+- ResourceNode plannedResource
+- boolean isFrozen
+- Object frozenPrevious
+- boolean isFirst
+- boolean isLast
+}
+
+class Domain.Allocation.Allocation {
+- Operation operation
+- List<Allocation> predecessorsAllocations
+- List<Allocation> successorsAllocations
+- List<ResourceNode> allResources
+- List<Allocation> allAllocations
+- List<AllocationOrResource> possiblePreviousAllocation
+- AllocationOrResource previous
+- ResourceNode resourceNode
+- Long startTime
+- Long endTime
+}
+
+class Domain.DAGLoopDetectionFilter {
+- {static} Logger logger
+}
+
+class Domain.Listen.StartTimeListener {
+}
+class Domain.SchedulerConstraintProvider {
+}
+enum DataStruct.OperationStartRelationShip {
++  ES
++  SSEE
+}
+
+class DataStruct.ExecutionMode {
+- Operation operation
+- ResourceRequirement resourceRequirement
+- Integer priority
+- float beat
+- float quantityPerBeat
+}
+
+enum DataStruct.ProductionMethod {
++  SELF
++  OUTSOURCING
+}
+
+abstract class Domain.Allocation.AllocationOrResource {
+- Allocation next
+}
+
+class App.Main {
+- {static} String filePath
+- {static} Logger logger
+}
+
+class DataStruct.ResourceNode {
+- String name
+- List<TimeSlot> timeSlots
+}
+
+
+
+ai.timefold.solver.core.api.domain.variable.VariableListener <|.. Domain.Listen.BaseReNewResourceListener
+Domain.AbstractPerishable <|-- Domain.Scheduler
+DataStruct.Labeled <|-- DataStruct.ResourceRequirement
+ai.timefold.solver.core.api.domain.entity.PinningFilter <|.. Domain.GroupSchedulingFilter
+DataStruct.Labeled <|-- DataStruct.Task
+DataStruct.Labeled <|-- DataStruct.MasterDemand
+DataStruct.Labeled <|-- DataStruct.Operation
+Domain.Allocation.AllocationOrResource <|-- Domain.Allocation.Allocation
+ai.timefold.solver.core.impl.heuristic.selector.common.decorator.SelectionFilter <|.. Domain.DAGLoopDetectionFilter
+ai.timefold.solver.core.api.domain.variable.VariableListener <|.. Domain.Listen.StartTimeListener
+Domain.ConstraintProvider <|.. Domain.SchedulerConstraintProvider
+DataStruct.Labeled <|-- DataStruct.ExecutionMode
+Domain.AbstractPerishable <|-- Domain.Allocation.AllocationOrResource
+Domain.Allocation.AllocationOrResource <|-- DataStruct.ResourceNode
+@enduml

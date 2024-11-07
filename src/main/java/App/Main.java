@@ -14,14 +14,14 @@ public class Main {
 
     public static void main(String[] args) {
         logger.info("Starting the solver application");
-        Scheduler problem = Preprocessing.generateDemoData();
-        Preprocessing.DataCheck(problem);
-        Preprocessing.calculateFrozenTask(problem);
-        Preprocessing.BuildAllocations(problem);
+        Scheduler problem = DataProcessing.generateDemoData();
+        DataProcessing.DataCheck(problem);
+        DataProcessing.calculateFrozenTask(problem);
+        DataProcessing.BuildAllocations(problem);
         SolverFactory<Scheduler> solverFactory = SolverFactory.createFromXmlResource("apsDemoConfig.xml");
         Solver<Scheduler> solver = solverFactory.buildSolver();
         Scheduler solution = solver.solve(problem);
-        Preprocessing.print(solution);
+        DataProcessing.print(solution);
         logger.info("Finished the solver application");
     }
 }

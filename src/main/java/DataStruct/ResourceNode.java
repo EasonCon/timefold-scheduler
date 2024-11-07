@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 public class ResourceNode extends AllocationOrResource {
     private String name;
+    private String resourceGroup;
     private List<TimeSlot> timeSlots = new ArrayList<>();
 
     public ResourceNode() {

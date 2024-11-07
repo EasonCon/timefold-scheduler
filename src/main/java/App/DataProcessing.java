@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class Preprocessing {
-    private static final Logger logger = LoggerFactory.getLogger(Preprocessing.class);
+public class DataProcessing {
+    private static final Logger logger = LoggerFactory.getLogger(DataProcessing.class);
 
     public static Scheduler generateDemoData() {
         ResourceNode resource1 = new ResourceNode();
